@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diametric — Purchase Task Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F5F7FA;
+    --surface: #FFFFFF;
+    --surface-2: #EEF2F7;
+    --card: #FFFFFF;
+    --card-hover: #FBFCFE;
+    --border: #E2E7EF;
+    --text: #1F2733;
+    --text-soft: #5B6472;
+    --text-faint: #94A0B2;
+    --line: #2D6CDF;
+    --line-bg: #EAF1FE;
+    --amber: #B5750C;
+    --amber-bg: #FCF2DF;
+    --red: #D6493F;
+    --red-bg: #FCEBEA;
+    --green: #12A594;
+    --green-bg: #E3F8F5;
+    --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
+    --shadow-md: 0 10px 26px rgba(16,24,40,.10);
+    --radius: 12px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  ::selection{background:var(--line);color:#fff;}
+
+  /* ---------- Title bar ---------- */
+  .titlebar{
+    background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm);
+    padding:16px clamp(14px,3vw,32px);display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:14px;position:relative;z-index:2;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--line),#6EA0F5);
+    display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
+    font-weight:700;font-size:12px;color:#fff;flex:none;box-shadow:0 4px 10px rgba(45,108,223,.28);
+  }
+  .brand-text h1{font-family:var(--font-display);font-size:18px;margin:0;font-weight:600;color:var(--text);}
+  .brand-text p{margin:2px 0 0;font-size:11px;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.4px;}
+  .synced{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);display:flex;align-items:center;gap:10px;}
+  .refresh-btn{
+    font-family:var(--font-mono);font-size:11.5px;padding:8px 14px;border-radius:999px;border:1px solid var(--border);
+    background:var(--surface-2);cursor:pointer;color:var(--text);display:flex;align-items:center;gap:6px;
+    transition:.15s;
+  }
+  .refresh-btn:hover{border-color:var(--line);color:var(--line);background:var(--line-bg);}
+  .refresh-btn.spinning svg{animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Sheet tabs ---------- */
+  .tabs{
+    display:flex;gap:10px;padding:16px clamp(14px,3vw,32px);background:var(--bg);
+    overflow-x:auto;
+  }
+  .tab-box{
+    display:flex;align-items:center;gap:10px;padding:10px 16px 10px 12px;border-radius:999px;
+    background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-sm);
+    cursor:pointer;white-space:nowrap;transition:.15s;flex:none;
+  }
+  .tab-box:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+  .tab-box.active{background:var(--line-bg);border-color:var(--line);}
+  .tab-icon{
+    width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:10px;font-weight:700;color:#fff;flex:none;
+    background:var(--tab-color, var(--text-faint));
+  }
+  .tab-box .name{font-family:var(--font-display);font-size:13.5px;font-weight:600;color:var(--text);line-height:1.25;}
+  .tab-box .count{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);margin-top:1px;}
+  .tab-box.active .count{color:var(--line);}
+
+  .stats-strip{display:flex;gap:10px;padding:0 clamp(14px,3vw,32px) 16px;flex-wrap:wrap;}
+  .stat-card{
+    flex:1 1 130px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:12px 16px;box-shadow:var(--shadow-sm);
+  }
+  .stat-card .stat-num{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);line-height:1;}
+  .stat-card .stat-lbl{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);margin-top:6px;}
+  .stat-card.c-overdue .stat-num{color:var(--red);}
+  .stat-card.c-done .stat-num{color:var(--green);}
+
+  /* ---------- Filter bar ---------- */
+  .filterbar{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    padding:14px clamp(14px,3vw,32px);background:var(--surface);border-bottom:1px solid var(--border);
+  }
+  .f-field{display:flex;flex-direction:column;gap:3px;}
+  .f-field label{font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);font-family:var(--font-mono);}
+  .f-field input, .f-field select{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;
+    padding:7px 10px;font-family:var(--font-body);font-size:12.5px;outline:none;min-width:120px;
+  }
+  .f-field input:focus, .f-field select:focus, .search-box:focus-within{border-color:var(--line);}
+  .search-box{
+    flex:1 1 200px;display:flex;align-items:center;gap:8px;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:8px;padding:8px 12px;align-self:flex-end;
+  }
+  .search-box input{border:none;outline:none;flex:1;font-family:var(--font-body);font-size:12.5px;background:transparent;color:var(--text);}
+  .search-box input::placeholder{color:var(--text-faint);}
+  .reset-btn{
+    align-self:flex-end;font-family:var(--font-mono);font-size:11.5px;padding:8px 14px;border-radius:8px;
+    border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;
+  }
+  .reset-btn:hover{color:var(--line);border-color:var(--line);}
+
+  /* ---------- Board ---------- */
+  .board-wrap{padding:18px clamp(14px,3vw,32px) 50px;overflow-x:auto;}
+  .board{display:flex;gap:16px;min-width:max-content;align-items:flex-start;}
+  .column{width:320px;flex:none;}
+  .col-head{
+    display:flex;justify-content:space-between;align-items:center;padding:0 4px 10px;
+    border-bottom:2px solid var(--col-color, var(--border));margin-bottom:12px;
+  }
+  .col-head h3{font-size:12.5px;font-family:var(--font-mono);letter-spacing:.6px;text-transform:uppercase;margin:0;color:var(--text-soft);}
+  .col-head .count{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);background:var(--surface-2);padding:2px 8px;border-radius:999px;}
+  .col-body{display:flex;flex-direction:column;gap:10px;min-height:40px;}
+  .col-empty{font-size:12px;color:var(--text-faint);text-align:center;padding:20px 0;border:1px dashed var(--border);border-radius:8px;}
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--border);border-left:4px solid var(--border);
+    border-radius:var(--radius);box-shadow:var(--shadow-sm);
+    padding:15px 16px;display:flex;flex-direction:column;gap:11px;transition:.15s;cursor:pointer;
+  }
+  .card:hover{background:var(--card-hover);border-color:var(--line);border-left-color:var(--line);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+  .card.card-todo{border-left-color:#C7CCD6;}
+  .card.card-overdue{border-left-color:var(--red);}
+  .card.card-done{border-left-color:var(--green);}
+
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .card-person{display:flex;align-items:center;gap:10px;min-width:0;}
+  .avatar-lg{
+    width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:13px;font-weight:700;color:#fff;flex:none;
+    box-shadow:0 2px 6px rgba(16,24,40,.15);
+  }
+  .card-person-name{font-family:var(--font-display);font-size:14.5px;font-weight:600;color:var(--text);line-height:1.3;}
+  .card-person-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .step-line{font-size:12px;color:var(--text-soft);}
+  .step-line b{font-family:var(--font-mono);color:var(--line);margin-right:6px;}
+
+  .pill-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+  .field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px 14px;}
+  .field .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);margin-bottom:2px;}
+  .field .v{font-size:12.5px;color:var(--text);font-family:var(--font-mono);word-break:break-word;}
+  .avatar{
+    width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:9.5px;font-weight:700;color:#fff;flex:none;
+  }
+  .pill{
+    font-family:var(--font-mono);font-size:10.5px;padding:4px 10px;border-radius:999px;font-weight:600;
+    letter-spacing:.2px;white-space:nowrap;flex:none;
+  }
+  .pill.site{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);}
+  .pill.step{background:var(--amber-bg);color:var(--amber);}
+  .pill.date{background:var(--surface-2);color:var(--text-faint);border:1px solid var(--border);font-family:var(--font-mono);}
+  .pill.overdue{background:var(--red-bg);color:var(--red);}
+  .pill.done{background:var(--green-bg);color:var(--green);}
+
+  .link-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .link-pill{
+    font-family:var(--font-mono);font-size:10.5px;padding:5px 10px;border-radius:7px;
+    background:var(--line-bg);color:var(--line);text-decoration:none;border:1px solid var(--line-bg);
+    transition:.15s;
+  }
+  .link-pill:hover{background:var(--line);color:#fff;border-color:var(--line);}
+
+  .card-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+  .btn{
+    font-family:var(--font-body);font-size:12px;padding:8px 15px;border-radius:999px;cursor:pointer;font-weight:600;
+    border:1px solid var(--border);background:transparent;color:var(--text-soft);
+    display:inline-flex;align-items:center;gap:6px;transition:.15s;
+  }
+  .btn svg{flex:none;}
+  .btn.complete{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 3px 8px rgba(18,165,148,.30);}
+  .btn.complete:hover{background:#0e8c7e;}
+  .btn.action{background:var(--line);border-color:var(--line);color:#fff;box-shadow:0 3px 8px rgba(45,108,223,.30);}
+  .btn.action:hover{background:#2158b8;}
+  .btn.reopen:hover{color:var(--line);border-color:var(--line);background:var(--line-bg);}
+  .btn.whatsapp{background:#25D366;border-color:#25D366;color:#fff;box-shadow:0 3px 8px rgba(37,211,102,.30);}
+  .btn.whatsapp:hover{background:#1EBE59;}
+  .btn:disabled{opacity:.55;cursor:default;}
+
+  .empty, .err, .loading{max-width:1180px;margin:40px auto;padding:0 clamp(14px,3vw,32px);text-align:center;color:var(--text-soft);}
+  .empty h3, .err h3{font-family:var(--font-display);color:var(--text);margin-bottom:6px;}
+  .err{color:var(--red);}
+  .err code{background:var(--surface-2);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--border);}
+  .skeleton{background:linear-gradient(90deg,#EBEDF1 25%,#F6F7F9 37%,#EBEDF1 63%);background-size:400% 100%;animation:sk 1.4s ease infinite;border-radius:var(--radius);height:96px;margin-bottom:12px;}
+  @keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+  /* ---------- Detail modal ---------- */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(20,26,43,.45);backdrop-filter:blur(2px);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;
+  }
+  .modal-panel{
+    width:100%;max-width:560px;max-height:86vh;overflow-y:auto;background:var(--surface);
+    border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 24px 64px rgba(16,24,40,.22);
+  }
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:4px;}
+  .modal-head h2{font-family:var(--font-display);font-size:19px;margin:0;color:var(--text);}
+  .modal-sub{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);margin-top:4px;}
+  .modal-close{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text-soft);
+    width:30px;height:30px;border-radius:8px;cursor:pointer;flex:none;font-size:15px;line-height:1;
+  }
+  .modal-close:hover{color:var(--text);border-color:var(--line);}
+  .modal-status-row{margin:14px 0;}
+  .modal-section{margin-top:18px;}
+  .modal-section h4{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);margin:0 0 10px;}
+  .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;}
+  .modal-field .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);margin-bottom:3px;}
+  .modal-field .v{font-size:13px;color:var(--text);font-family:var(--font-mono);word-break:break-word;}
+  .modal-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+  .modal-actions{margin-top:20px;display:flex;justify-content:flex-end;gap:10px;}
+  @media (max-width:520px){ .modal-grid{grid-template-columns:1fr;} }
+
+  /* ---------- Manage Buttons settings panel ---------- */
+  #settingsRows{max-height:48vh;overflow-y:auto;padding-right:4px;}
+  .settings-row{display:flex;flex-direction:column;gap:7px;padding:14px 0;border-bottom:1px solid var(--border);}
+  .settings-row:last-child{border-bottom:none;}
+  .settings-row-name{font-family:var(--font-display);font-weight:600;font-size:13.5px;color:var(--text);}
+  .settings-row input{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+    padding:8px 11px;font-family:var(--font-body);font-size:12.5px;outline:none;color:var(--text);width:100%;
+  }
+  .settings-row input:focus{border-color:var(--line);}
+  .settings-hint{font-size:11px;color:var(--text-faint);margin-top:2px;}
+  .tracker-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .tracker-row:last-child{border-bottom:none;}
+  .tracker-name{font-family:var(--font-display);font-weight:600;font-size:13.5px;color:var(--text);}
+  .tracker-counts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+  .tracker-badge{font-family:var(--font-mono);font-size:10.5px;padding:3px 9px;border-radius:999px;font-weight:600;}
+  .tracker-badge.pending{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);}
+  .tracker-badge.overdue{background:var(--red-bg);color:var(--red);}
+  .tracker-badge.none{background:var(--green-bg);color:var(--green);}
+  .aging-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .aging-row:last-child{border-bottom:none;}
+  .aging-row-name{font-family:var(--font-display);font-weight:600;font-size:13.5px;color:var(--text);}
+  .aging-row-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono);margin-top:2px;}
+  .aging-badge{font-family:var(--font-mono);font-size:11px;padding:4px 11px;border-radius:999px;font-weight:700;white-space:nowrap;flex:none;}
+  .aging-badge.overdue{background:var(--red-bg);color:var(--red);}
+  .aging-badge.upcoming{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);}
+
+  @media (max-width:640px){
+    .filterbar{flex-direction:column;align-items:stretch;}
+    .f-field, .search-box, .reset-btn{width:100%;min-width:0;}
+  }
+
+  /* ---------- Access gate ---------- */
+  body.pre-access .app-shell{display:none;}
+  .access-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:300;}
+  .access-card{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:30px 28px;box-shadow:var(--shadow-md);}
+  .access-brand{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+  .access-card h2{font-family:var(--font-display);font-size:18px;margin:0;color:var(--text);}
+  .access-card p.sub{font-size:11.5px;color:var(--text-faint);margin:2px 0 0;}
+  .access-card label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);font-family:var(--font-mono);display:block;margin-bottom:6px;}
+  .access-card input{
+    width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);
+    background:var(--surface-2);font-family:var(--font-body);font-size:13px;margin-bottom:16px;
+    outline:none;color:var(--text);
+  }
+  .access-card input:focus{border-color:var(--line);}
+  .access-submit{
+    width:100%;padding:11px;border-radius:999px;border:none;background:var(--line);color:#fff;
+    font-weight:600;font-family:var(--font-body);cursor:pointer;font-size:13px;transition:.15s;
+  }
+  .access-submit:hover{background:#2158b8;}
+  .access-submit:disabled{opacity:.6;cursor:default;}
+  .access-error{color:var(--red);font-size:12px;margin-top:12px;min-height:14px;}
+</style>
+</head>
+<body class="pre-access">
+
+<div class="titlebar app-shell">
+  <div class="brand">
+    <div class="brand-mark">DB</div>
+    <div class="brand-text">
+      <h1>Purchase Task Board</h1>
+      <p>DIAMETRIC BUILDS · LIVE FROM PURCHASE DASH SHEET</p>
+    </div>
+  </div>
+  <div class="synced">
+    <span id="syncedAt"></span>
+    <button class="refresh-btn" id="settingsBtn" title="Rename or link a task's button">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Manage Buttons
+    </button>
+    <button class="refresh-btn" id="doerNumbersBtn" title="Add Doer WhatsApp numbers">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg>
+      Doer Numbers
+    </button>
+    <button class="refresh-btn" id="assignAccessBtn" title="Assign each Doer's email so they only see their own tasks">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6z"/><polyline points="22 6 12 13 2 6"/></svg>
+      Assign Access
+    </button>
+    <button class="refresh-btn" id="emailAlertsBtn" title="Set who receives the automatic daily pending-summary email">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6z"/><polyline points="22 6 12 13 2 6"/></svg>
+      Email Alerts
+    </button>
+    <button class="refresh-btn" id="agingBtn" title="Oldest-pending tasks first, across every tab">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Aging Tracker
+    </button>
+    <button class="refresh-btn" id="trackerBtn" title="Doer-wise pending &amp; overdue summary + bulk WhatsApp reminders">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"/></svg>
+      Pending Tracker
+    </button>
+    <button class="refresh-btn" id="newTabBtn" title="Create a new task tab">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Tab
+    </button>
+    <button class="refresh-btn" id="refreshBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      Refresh
+    </button>
+  </div>
+</div>
+
+<div class="tabs app-shell" id="tabs"></div>
+<div class="stats-strip app-shell" id="statsStrip"></div>
+
+<div class="filterbar app-shell">
+  <div class="f-field">
+    <label>Start Date</label>
+    <input type="date" id="fStart">
+  </div>
+  <div class="f-field">
+    <label>End Date</label>
+    <input type="date" id="fEnd">
+  </div>
+  <div class="f-field">
+    <label>Assignee</label>
+    <select id="fAssignee"><option value="all">All Assignees</option></select>
+  </div>
+  <div class="f-field">
+    <label>Site</label>
+    <select id="fSite"><option value="all">All Sites</option></select>
+  </div>
+  <div class="search-box">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5C6577" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="searchInput" type="text" placeholder="Search tasks by name, doer, site...">
+  </div>
+  <button class="reset-btn" id="resetBtn">Reset Filters</button>
+</div>
+
+<div class="board-wrap app-shell" id="boardWrap">
+  <div class="loading">
+    <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="accessRoot"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>
+/* ============================================================
+   CONFIG — paste your deployed Apps Script Web App URL below
+   ============================================================ */
+const CONFIG = {
+  API_URL: "https://script.google.com/macros/s/AKfycby1nMbQDCn8-XtLMSNj5OJiud1N1Ilbh-O5Zy4LQJ9TyfPS77KSbGfm-Cbj0skjHWiu/exec",
+  AUTO_REFRESH_MS: 60000, // auto-refresh every 60s, set to 0 to disable
+};
+
+/* ============================================================
+   TASK ACTION BUTTONS
+   ------------------------------------------------------------
+   By default every pending task shows a plain "Mark Complete"
+   button. To give a SPECIFIC task its own button label + link
+   instead, add one line below:
+
+       "<exact Step name from the sheet>": {
+         label: "<text you want on the button>",
+         url:   "<link to open when clicked>"
+       },
+
+   - The match is on the task's exact "Step" text (case/whitespace
+     insensitive), so EVERY card for that task — across every
+     sheet tab — automatically gets the same button + link. You
+     only ever edit it in one place.
+   - Clicking this button just opens the link in a new tab; it does
+     NOT mark the task complete on its own (use the sheet/form flow
+     for that, same as before).
+   - Leave a task out of this list and it keeps the plain default
+     "Mark Complete" button that updates the sheet directly.
+   ============================================================ */
+const DEFAULT_TASK_ACTIONS = {
+  "Transfer to accounts department (Fill Bill Form)": {
+    label: "Submit Bill Here",
+    url: "https://script.google.com/a/macros/diametricbuilds.com/s/AKfycbw8xnonT96xtxkIoBnv04cdPyuU8cCgfCXJm9he-aeUf4Pp6WDNRyrypH0I4rtaOp_y/exec"
+  },
+  // "Another Step Name Exactly As In Sheet": { label: "Open Form", url: "https://..." },
+};
+
+/* ------------------------------------------------------------
+   Buttons set from the dashboard's own "Manage Buttons" panel
+   are saved in this browser's localStorage and take priority
+   over DEFAULT_TASK_ACTIONS above. No code edit needed for these.
+   ------------------------------------------------------------ */
+const OVERRIDES_KEY = "diametric_task_action_overrides";
+function loadOverrides(){
+  try { return JSON.parse(localStorage.getItem(OVERRIDES_KEY) || "{}"); }
+  catch (e) { return {}; }
+}
+function saveOverrides(obj){
+  localStorage.setItem(OVERRIDES_KEY, JSON.stringify(obj));
+}
+let TASK_ACTION_OVERRIDES = loadOverrides();
+
+function findTaskAction(taskName){
+  if (!taskName) return null;
+  const target = taskName.trim().toLowerCase();
+  let key = Object.keys(TASK_ACTION_OVERRIDES).find(k => k.trim().toLowerCase() === target);
+  if (key) return TASK_ACTION_OVERRIDES[key];
+  key = Object.keys(DEFAULT_TASK_ACTIONS).find(k => k.trim().toLowerCase() === target);
+  return key ? DEFAULT_TASK_ACTIONS[key] : null;
+}
+function collectAllStepNames(){
+  const set = new Set();
+  STATE.sheets.forEach(s => {
+    s.rows.forEach(r => {
+      const step = getField(r, "Step") || getField(r, "Task");
+      if (step) set.add(String(step).trim());
+    });
+  });
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+
+/* ------------------------------------------------------------
+   Doer WhatsApp directory — name -> phone number, saved from the
+   dashboard's own "Doer Numbers" panel (localStorage for now).
+   ------------------------------------------------------------ */
+const PHONES_KEY = "diametric_doer_phone_directory";
+function loadPhoneDirectory(){
+  try { return JSON.parse(localStorage.getItem(PHONES_KEY) || "{}"); }
+  catch (e) { return {}; }
+}
+function savePhoneDirectory(obj){
+  localStorage.setItem(PHONES_KEY, JSON.stringify(obj));
+}
+let DOER_PHONES = loadPhoneDirectory();
+
+function collectAllDoers(){
+  const set = new Set();
+  STATE.sheets.forEach(s => {
+    s.rows.forEach(r => {
+      const doer = getField(r, "Doer");
+      if (doer) set.add(String(doer).trim());
+    });
+  });
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
+function getDoerPhone(doerName){
+  if (!doerName) return "";
+  const target = doerName.trim().toLowerCase();
+  const key = Object.keys(DOER_PHONES).find(k => k.trim().toLowerCase() === target);
+  return key ? DOER_PHONES[key] : "";
+}
+// Normalizes Indian-style numbers: strips spaces/dashes, drops a leading 0,
+// and adds the 91 country code to a bare 10-digit number. If the number
+// already has a country code (11+ digits), it's left as-is.
+function normalizePhone(raw){
+  let digits = String(raw || "").replace(/\D/g, "");
+  if (!digits) return "";
+  if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+  if (digits.length === 10) digits = "91" + digits;
+  return digits;
+}
+// Maps raw sheet header names to clean, professional labels for the
+// WhatsApp message. Anything not in this map falls back to a
+// title-cased version of the header itself.
+const FIELD_LABEL_MAP = {
+  "clint name": "Client Name",
+  "client name": "Client Name",
+  "amt": "Amount",
+  "amount": "Amount",
+  "grand total": "Grand Total",
+  "site code": "Site Code",
+  "vendor name": "Vendor",
+  "vendor": "Vendor",
+  "step id": "Task Reference",
+  "step code": "Stage",
+  "step": "Task",
+  "work order": "Work Order No.",
+  "mr": "Material Request No.",
+  "planned": "Due Date",
+  "deley": "Delay",
+  "delay": "Delay",
+  "invoice no": "Invoice No.",
+  "id": "Reference No.",
+};
+function prettyFieldLabel(h){
+  const key = h.trim().toLowerCase();
+  if (FIELD_LABEL_MAP[key]) return FIELD_LABEL_MAP[key];
+  return h.replace(/_/g, " ").replace(/\s+/g, " ").trim()
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+// Adds a ₹ symbol and Indian comma grouping to plain numeric amounts.
+function prettyFieldValue(h, v){
+  if (/amt|amount|total|balance|advance/i.test(h)) {
+    const num = Number(String(v).replace(/,/g, ""));
+    if (!isNaN(num) && String(v).trim() !== "") return "₹" + num.toLocaleString("en-IN");
+  }
+  return v;
+}
+function buildReminderMessage(row, headers){
+  const doer = getField(row, "Doer") || "";
+  const isOverdue = overdueRow(row) && rowStatus(row) !== "done";
+  const taskName = getField(row, "Step") || "";
+  const taskLink = getField(row, "Task");
+  const skip = new Set(["doer", "status", "_row", "_sheet", "step", "task"]);
+
+  const textLines = [];
+  (headers || Object.keys(row)).forEach(h => {
+    const v = row[h];
+    if (v === undefined || v === null || v === "") return;
+    const key = h.trim().toLowerCase();
+    if (skip.has(key)) return;
+    if (isLinkValue(v)) return; // only the Task link is shown, handled separately below
+    textLines.push(`• *${prettyFieldLabel(h)}:* ${prettyFieldValue(h, v)}`);
+  });
+
+  let msg = `*DIAMETRIC BUILDS*\n_Task Reminder_\n\n`;
+  msg += `Dear ${doer},\n`;
+  msg += isOverdue
+    ? `⚠️ You have an *overdue* task pending:\n\n`
+    : `You have a pending task on the Purchase Task Board:\n\n`;
+
+  if (taskName) msg += `📌 *Task:* ${taskName}\n\n`;
+
+  const sheetName = row._sheet || "";
+  if (sheetName) msg += `🗂️ *Sheet:* ${sheetName}\n\n`;
+
+  if (textLines.length) msg += textLines.join("\n") + `\n\n`;
+
+  if (taskLink && isLinkValue(taskLink)) {
+    msg += `📎 *Task Link:* ${taskLink}\n\n`;
+  }
+
+  msg += `Please complete at the earliest.\n– Diametric Builds`;
+  return msg;
+}
+function openWhatsAppReminder(row, headers){
+  const doer = getField(row, "Doer") || "";
+  const phone = normalizePhone(getDoerPhone(doer));
+  if (!phone) {
+    alert(`"${doer}"'s WhatsApp number is not set in Doer Numbers. Please add it there first.`);
+    openDoerDirectoryModal();
+    return;
+  }
+  const text = encodeURIComponent(buildReminderMessage(row, headers));
+  window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+}
+
+function openDoerDirectoryModal(){
+  const doers = collectAllDoers();
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "doerOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "560px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>Doer Numbers</h2>
+        <div class="modal-sub">Add each Doer's WhatsApp number once — the reminder button on their tasks will use it.</div>
+      </div>
+      <button class="modal-close" id="doerCloseBtn">✕</button>
+    </div>
+    <div class="modal-section"><div id="doerRows"></div></div>
+    <div class="modal-actions">
+      <button class="btn action" id="doerSaveBtn">${CHECK_ICON}<span>Save Numbers</span></button>
+    </div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  const rowsWrap = $("#doerRows", panel);
+  if (!doers.length) {
+    rowsWrap.innerHTML = `<p class="settings-hint">No Doers found — let the dashboard data load first.</p>`;
+  } else {
+    doers.forEach(doerName => {
+      const row = document.createElement("div");
+      row.className = "settings-row";
+      row.dataset.doer = doerName;
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "settings-row-name";
+      nameEl.textContent = doerName;
+
+      const phoneInput = document.createElement("input");
+      phoneInput.type = "tel";
+      phoneInput.className = "doer-phone";
+      phoneInput.placeholder = "10-digit mobile number, e.g. 9876543210";
+      phoneInput.value = getDoerPhone(doerName) || "";
+
+      row.appendChild(nameEl);
+      row.appendChild(phoneInput);
+      rowsWrap.appendChild(row);
+    });
+  }
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "doerOverlay") closeModal(); });
+  $("#doerCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+
+  $("#doerSaveBtn", panel).addEventListener("click", () => {
+    const newDirectory = {};
+    $all(".settings-row", rowsWrap).forEach(row => {
+      const doer = row.dataset.doer;
+      const phone = row.querySelector(".doer-phone").value.trim();
+      if (phone) newDirectory[doer] = phone;
+    });
+    DOER_PHONES = newDirectory;
+    savePhoneDirectory(newDirectory);
+    closeModal();
+    renderBoard();
+  });
+}
+
+const WHATSAPP_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`;
+
+/* ============================================================
+   ADMIN EMAILS
+   ------------------------------------------------------------
+   Anyone whose email is in this list gets full admin access:
+   every task, every tab, all buttons, and the settings panels.
+   Add your own email(s) here (comma-separated, in quotes).
+   ============================================================ */
+const ADMIN_EMAILS = [
+  "mis@diametricbuilds.com",
+];
+
+/* ============================================================
+   Doer email directory — name -> email, assigned from the
+   dashboard's own "Assign Access" panel (localStorage for now).
+   Whoever enters a matching email on this device sees only that
+   Doer's tasks, read-only (no buttons).
+   ============================================================ */
+const EMAILS_KEY = "diametric_doer_email_directory";
+function loadEmailDirectory(){
+  try { return JSON.parse(localStorage.getItem(EMAILS_KEY) || "{}"); }
+  catch (e) { return {}; }
+}
+function saveEmailDirectory(obj){
+  localStorage.setItem(EMAILS_KEY, JSON.stringify(obj));
+}
+let DOER_EMAILS = loadEmailDirectory();
+
+function getDoerEmail(doerName){
+  if (!doerName) return "";
+  const target = doerName.trim().toLowerCase();
+  const key = Object.keys(DOER_EMAILS).find(k => k.trim().toLowerCase() === target);
+  return key ? DOER_EMAILS[key] : "";
+}
+// Given a typed email, figures out whether it's an admin, or matches a
+// specific Doer's assigned email — returns { role, doer } or null.
+function resolveAccess(email){
+  const target = String(email || "").trim().toLowerCase();
+  if (!target) return null;
+  if (ADMIN_EMAILS.some(a => a.trim().toLowerCase() === target)) {
+    return { role: "admin", doer: "", email: target };
+  }
+  const matchName = Object.keys(DOER_EMAILS).find(
+    name => String(DOER_EMAILS[name] || "").trim().toLowerCase() === target
+  );
+  if (matchName) return { role: "user", doer: matchName, email: target };
+  return null;
+}
+
+function openEmailDirectoryModal(){
+  const doers = collectAllDoers();
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "emailOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "560px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>Assign Access</h2>
+        <div class="modal-sub">Add each Doer's email once. When they open this dashboard and enter that email, they'll see only their own tasks — read-only, no buttons.</div>
+      </div>
+      <button class="modal-close" id="emailCloseBtn">✕</button>
+    </div>
+    <div class="modal-section"><div id="emailRows"></div></div>
+    <div class="modal-actions">
+      <button class="btn action" id="emailSaveBtn">${CHECK_ICON}<span>Save Access List</span></button>
+    </div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  const rowsWrap = $("#emailRows", panel);
+  if (!doers.length) {
+    rowsWrap.innerHTML = `<p class="settings-hint">No Doers found — let the dashboard data load first.</p>`;
+  } else {
+    doers.forEach(doerName => {
+      const row = document.createElement("div");
+      row.className = "settings-row";
+      row.dataset.doer = doerName;
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "settings-row-name";
+      nameEl.textContent = doerName;
+
+      const emailInput = document.createElement("input");
+      emailInput.type = "email";
+      emailInput.className = "doer-email";
+      emailInput.placeholder = "name@example.com";
+      emailInput.value = getDoerEmail(doerName) || "";
+
+      row.appendChild(nameEl);
+      row.appendChild(emailInput);
+      rowsWrap.appendChild(row);
+    });
+  }
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "emailOverlay") closeModal(); });
+  $("#emailCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+
+  $("#emailSaveBtn", panel).addEventListener("click", () => {
+    const newDirectory = {};
+    $all(".settings-row", rowsWrap).forEach(row => {
+      const doer = row.dataset.doer;
+      const email = row.querySelector(".doer-email").value.trim();
+      if (email) newDirectory[doer] = email;
+    });
+    DOER_EMAILS = newDirectory;
+    saveEmailDirectory(newDirectory);
+    closeModal();
+  });
+}
+
+const CHECK_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const LINK_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
+
+const LINK_HEADER_HINT = /link|proof|invoice|grn|pdf|quotation|\bpo\b|task|view|action|workorder|report|summary/i;
+const HIDE_HEADERS = new Set(["_row", "_sheet", "Status"]);
+const PRIORITY_HEADERS = ["Doer","Site Code","Location","Planned","Deley","Vendor","Vendor Name","Clint Name","Amt","Grand Total","Advance","Balance","MR","Work Order","Step Code","Step Id","Type"];
+const AVATAR_COLORS = ["#2D6CDF","#12A594","#C0398C","#0E8FA6","#D6493F","#7A5AF8","#0B7A99","#B5750C"];
+
+const COLUMNS = [
+  { key: "todo",    label: "To Do",    color: "#C7CCD6", match: (r) => rowStatus(r) === "pending" && !overdueRow(r) },
+  { key: "overdue", label: "Overdue",  color: "#D6493F", match: (r) => rowStatus(r) === "pending" && overdueRow(r) },
+  { key: "done",    label: "Complete", color: "#12A594", match: (r) => rowStatus(r) === "done" },
+];
+
+let STATE = {
+  sheets: [],
+  activeSheet: null,
+  query: "",
+  dateStart: "",
+  dateEnd: "",
+  assignee: "all",
+  site: "all",
+  busy: false,
+};
+
+function $(sel, root=document){ return root.querySelector(sel); }
+function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
+
+function isLinkValue(v){
+  return typeof v === "string" && /^https?:\/\//i.test(v.trim());
+}
+// Looks up a field by exact header name first, then falls back to a
+// trim+case-insensitive match — protects against hidden whitespace in a
+// sheet's header row silently breaking a lookup like row["Doer"].
+function getField(row, name){
+  if (row[name] !== undefined && row[name] !== "") return row[name];
+  const target = name.trim().toLowerCase();
+  const key = Object.keys(row).find(k => k.trim().toLowerCase() === target);
+  return key ? row[key] : undefined;
+}
+function overdueRow(row){
+  const v = getField(row, "Deley");
+  if (v === undefined || v === null || v === "") return false;
+  if (typeof v === "number") return v > 0;
+  const s = String(v).trim();
+  if (!s || s.startsWith("-")) return false; // minus = time still remaining
+  if (/^0+(:0+)*$/.test(s)) return false;     // exact zero = not overdue yet
+  return true;                                 // positive = deadline has passed
+}
+// Parses a "Deley" value (e.g. "1148:35:30" or "-85:17:30", meaning
+// H:MM:SS) into signed decimal hours. Positive = overdue by that much,
+// negative = time still remaining. Falls back to treating it as a plain
+// number if it isn't in H:MM:SS form.
+function parseDelayHours(v){
+  if (v === undefined || v === null || v === "") return null;
+  if (typeof v === "number") return v;
+  const s = String(v).trim();
+  const m = s.match(/^(-?)(\d+):(\d{1,2}):(\d{1,2})$/);
+  if (m) {
+    const sign = m[1] === "-" ? -1 : 1;
+    return sign * (Number(m[2]) + Number(m[3]) / 60 + Number(m[4]) / 3600);
+  }
+  const num = Number(s);
+  return isNaN(num) ? null : num;
+}
+// Age in days: positive = overdue by that many days, negative = still
+// due in that many days. Returns null if the row has no usable Deley value.
+function computeAgeDays(row){
+  const hrs = parseDelayHours(getField(row, "Deley"));
+  return hrs === null ? null : hrs / 24;
+}
+function rowStatus(row){
+  const s = (getField(row, "Status") || "").toString().trim().toLowerCase();
+  return s.startsWith("completed") ? "done" : "pending";
+}
+function hashColor(str){
+  let h = 0;
+  for (let i = 0; i < (str||"").length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+function initials(name){
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  return (parts[0][0] + (parts[1] ? parts[1][0] : "")).toUpperCase();
+}
+// Parses "DD/MM/YYYY HH:MM:SS" style values from the sheet into a Date.
+function parsePlanned(val){
+  if (!val) return null;
+  const m = String(val).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!m) return null;
+  return new Date(+m[3], +m[2]-1, +m[1]);
+}
+
+async function loadData(showSkeleton=true){
+  if (STATE.busy) return;
+  STATE.busy = true;
+  const btn = $("#refreshBtn");
+  btn.classList.add("spinning");
+
+  if (showSkeleton) {
+    $("#boardWrap").innerHTML = `<div class="loading"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>`;
+  }
+
+  if (!CONFIG.API_URL || CONFIG.API_URL.includes("PASTE_YOUR")) {
+    renderConfigError();
+    btn.classList.remove("spinning");
+    STATE.busy = false;
+    return;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    const res = await fetch(`${CONFIG.API_URL}?action=list`, { method: "GET", signal: controller.signal });
+    clearTimeout(timeout);
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      throw new Error("Response wasn't JSON — check whether deployment access is set to 'Anyone'.");
+    }
+    if (data.error) throw new Error(data.error);
+
+    STATE.sheets = data.sheets || [];
+    if (!STATE.activeSheet && STATE.sheets.length) STATE.activeSheet = STATE.sheets[0].sheet;
+
+    if (CURRENT_ACCESS && CURRENT_ACCESS.role !== "admin") {
+      const doers = collectAllDoers();
+      const matched = doers.find(d => d.trim().toLowerCase() === String(CURRENT_ACCESS.doer || "").trim().toLowerCase());
+      STATE.assignee = matched || CURRENT_ACCESS.doer || "all";
+    }
+
+    renderTabs();
+    populateFilterOptions();
+    renderBoard();
+    $("#syncedAt").textContent = "Last synced " + new Date().toLocaleTimeString("en-IN", {hour:'2-digit',minute:'2-digit'});
+  } catch (err) {
+    const msg = err.name === "AbortError" ? "Request did not respond within 30 seconds (timeout)." : err.message;
+    renderFetchError(msg);
+  } finally {
+    btn.classList.remove("spinning");
+    STATE.busy = false;
+  }
+}
+
+function renderConfigError(){
+  $("#boardWrap").innerHTML = `
+    <div class="err">
+      <h3>API URL not set</h3>
+      <p>Paste your deployed Apps Script Web App URL into <code>CONFIG.API_URL</code> at the top of index.html.</p>
+    </div>`;
+  $("#tabs").innerHTML = "";
+}
+function renderFetchError(msg){
+  $("#boardWrap").innerHTML = `
+    <div class="err">
+      <h3>Could not load data</h3>
+      <p><code>${escapeHtml(msg)}</code></p>
+      <p style="margin:14px 0;">
+        <a href="${escapeHtml(CONFIG.API_URL)}?action=list" target="_blank" rel="noopener"
+           style="display:inline-block;font-family:var(--font-mono);font-size:12.5px;padding:9px 18px;
+                  border-radius:999px;background:var(--line);color:#fff;text-decoration:none;font-weight:600;">
+          Test API URL directly ↗
+        </a>
+      </p>
+      <p style="text-align:left;max-width:460px;margin:16px auto 0;color:var(--text-soft);font-size:12.5px;line-height:1.7;">
+        Click the button above — it opens in a new tab. If you see JSON data there
+        (sheets, headers, rows), the backend is fine and you just need to re-copy this
+        CONFIG.API_URL correctly. If you see an error/blank/login page there too, check:<br>
+        1. The Apps Script deployment is set to <b>"Execute as: Me"</b> and <b>"Who has access: Anyone"</b><br>
+        2. If you've edited Code.gs since deploying, you've done <b>Deploy → Manage deployments → New version → Deploy</b><br>
+        3. The web app URL ends in <code>/exec</code> (not <code>/dev</code>)<br>
+        4. Code.gs's <code>SPREADSHEET_ID</code> has the correct ID for your sheet
+      </p>
+    </div>`;
+}
+
+function tabInitials(name){
+  const parts = name.replace(/[_\-]/g, " ").trim().split(/\s+/);
+  let initials = parts.slice(0, 2).map(p => p[0]).join("").toUpperCase();
+  if (initials.length < 2 && name.length > 1) initials = name.slice(0, 2).toUpperCase();
+  return initials;
+}
+
+function renderTabs(){
+  const tabsEl = $("#tabs");
+  tabsEl.innerHTML = "";
+  STATE.sheets.forEach(s => {
+    const box = document.createElement("div");
+    box.className = "tab-box" + (s.sheet === STATE.activeSheet ? " active" : "");
+    box.style.setProperty("--tab-color", hashColor(s.sheet));
+    box.innerHTML = `
+      <span class="tab-icon">${escapeHtml(tabInitials(s.sheet))}</span>
+      <div>
+        <div class="name">${escapeHtml(s.sheet)}</div>
+        <div class="count">${s.rows.length} task${s.rows.length === 1 ? "" : "s"}</div>
+      </div>`;
+    box.onclick = () => {
+      STATE.activeSheet = s.sheet;
+      STATE.assignee = "all"; STATE.site = "all"; STATE.query = "";
+      $("#searchInput").value = ""; $("#fStart").value = ""; $("#fEnd").value = "";
+      STATE.dateStart = ""; STATE.dateEnd = "";
+      renderTabs(); populateFilterOptions(); renderBoard();
+    };
+    tabsEl.appendChild(box);
+  });
+}
+
+function currentSheetObj(){
+  return STATE.sheets.find(s => s.sheet === STATE.activeSheet);
+}
+
+function populateFilterOptions(){
+  const s = currentSheetObj();
+  if (!s) return;
+  const doers = [...new Set(s.rows.map(r => getField(r, "Doer")).filter(Boolean))].sort();
+  const sites = [...new Set(s.rows.map(r => getField(r, "Site Code")).filter(Boolean))].sort();
+
+  const aSel = $("#fAssignee");
+  aSel.innerHTML = `<option value="all">All Assignees</option>` + doers.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("");
+  aSel.value = STATE.assignee;
+
+  const sSel = $("#fSite");
+  sSel.innerHTML = `<option value="all">All Sites</option>` + sites.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("");
+  sSel.value = STATE.site;
+}
+
+function passesFilters(row){
+  if (STATE.query) {
+    const q = STATE.query.toLowerCase();
+    const hit = Object.values(row).some(v => (v||"").toString().toLowerCase().includes(q));
+    if (!hit) return false;
+  }
+  if (STATE.assignee !== "all") {
+    const doer = getField(row, "Doer");
+    if (!doer || String(doer).trim().toLowerCase() !== String(STATE.assignee).trim().toLowerCase()) return false;
+  }
+  if (STATE.site !== "all" && getField(row, "Site Code") !== STATE.site) return false;
+  if (STATE.dateStart || STATE.dateEnd) {
+    const d = parsePlanned(getField(row, "Planned"));
+    if (!d) return false;
+    if (STATE.dateStart && d < new Date(STATE.dateStart)) return false;
+    if (STATE.dateEnd && d > new Date(STATE.dateEnd + "T23:59:59")) return false;
+  }
+  return true;
+}
+
+function renderStats(rows){
+  const strip = $("#statsStrip");
+  const todo = rows.filter(COLUMNS[0].match).length;
+  const overdue = rows.filter(COLUMNS[1].match).length;
+  const done = rows.filter(COLUMNS[2].match).length;
+  strip.innerHTML = `
+    <div class="stat-card"><div class="stat-num">${rows.length}</div><div class="stat-lbl">Total Tasks</div></div>
+    <div class="stat-card"><div class="stat-num">${todo}</div><div class="stat-lbl">To Do</div></div>
+    <div class="stat-card c-overdue"><div class="stat-num">${overdue}</div><div class="stat-lbl">Overdue</div></div>
+    <div class="stat-card c-done"><div class="stat-num">${done}</div><div class="stat-lbl">Completed</div></div>`;
+}
+
+function renderBoard(){
+  const wrap = $("#boardWrap");
+  const s = currentSheetObj();
+  if (!s) { wrap.innerHTML = `<div class="empty"><h3>No sheet found</h3></div>`; return; }
+
+  const rows = s.rows.filter(passesFilters);
+  renderStats(rows);
+
+  const board = document.createElement("div");
+  board.className = "board";
+
+  COLUMNS.forEach(col => {
+    const colRows = rows.filter(col.match);
+    const colEl = document.createElement("div");
+    colEl.className = "column";
+    colEl.style.setProperty("--col-color", col.color);
+    colEl.innerHTML = `<div class="col-head"><h3>${col.label}</h3><span class="count">${colRows.length}</span></div>`;
+    const body = document.createElement("div");
+    body.className = "col-body";
+    if (!colRows.length) {
+      body.innerHTML = `<div class="col-empty">No tasks</div>`;
+    } else {
+      colRows.forEach(row => body.appendChild(renderCard(row, s.headers, s.sheet, col.key)));
+    }
+    colEl.appendChild(body);
+    board.appendChild(colEl);
+  });
+
+  wrap.innerHTML = "";
+  wrap.appendChild(board);
+}
+
+function pickSubtitle(row, headers){
+  const found = [];
+  for (const h of ["Work Order","MR","Vendor Name","Vendor","ID"]) {
+    const v = getField(row, h);
+    if (v && !found.includes(v)) found.push(v);
+    if (found.length === 2) break;
+  }
+  return found.length ? found.join(" · ") : null;
+}
+
+function renderCard(row, headers, sheetName, colKey){
+  const status = rowStatus(row);
+  const overdue = overdueRow(row) && status !== "done";
+  const doer = getField(row, "Doer");
+  const stepCode = getField(row, "Step Code") || getField(row, "Step Id");
+  const step = getField(row, "Step");
+  const planned = getField(row, "Planned");
+  const site = getField(row, "Site Code");
+  const subtitle = pickSubtitle(row, headers);
+
+  const card = document.createElement("div");
+  card.className = "card card-" + colKey;
+
+  // Header: the assignee is the card's primary identity — avatar + name up
+  // top, with the record's own reference (Vendor/Bill/MR/ID) as a small
+  // subtitle underneath, not the headline.
+  const head = document.createElement("div");
+  head.className = "card-head";
+  const person = document.createElement("div");
+  person.className = "card-person";
+  if (doer) {
+    person.innerHTML = `
+      <span class="avatar-lg" style="background:${hashColor(doer)}">${initials(doer)}</span>
+      <div>
+        <div class="card-person-name">${escapeHtml(doer)}</div>
+        ${subtitle ? `<div class="card-person-sub">${escapeHtml(subtitle)}</div>` : ""}
+      </div>`;
+  } else {
+    person.innerHTML = `<div class="card-person-name">${escapeHtml(subtitle || "Task")}</div>`;
+  }
+  head.appendChild(person);
+  if (overdue) {
+    head.insertAdjacentHTML("beforeend", `<span class="pill overdue">Overdue</span>`);
+  } else if (status === "done") {
+    head.insertAdjacentHTML("beforeend", `<span class="pill done">Done</span>`);
+  }
+  card.appendChild(head);
+
+  if (step) {
+    const stepEl = document.createElement("div");
+    stepEl.className = "step-line";
+    stepEl.innerHTML = `<b>${escapeHtml(stepCode || "")}</b>${escapeHtml(step)}`;
+    card.appendChild(stepEl);
+  }
+
+  const row2 = document.createElement("div");
+  row2.className = "pill-row";
+  if (stepCode) {
+    const sp = document.createElement("span");
+    sp.className = "pill step";
+    sp.textContent = stepCode;
+    row2.appendChild(sp);
+  }
+  if (planned) {
+    const dt = document.createElement("span");
+    dt.className = "pill date";
+    dt.textContent = planned;
+    row2.appendChild(dt);
+  }
+  if (site) {
+    const sc = document.createElement("span");
+    sc.className = "pill site";
+    sc.textContent = site;
+    row2.appendChild(sc);
+  }
+  if (row2.children.length) card.appendChild(row2);
+
+  // Extra fields — driven entirely by THIS sheet's own headers, so each tab
+  // naturally shows its own distinguishing columns (Vendor/Amt on Purchase
+  // Bill, Grand Total/WorkOrder on Workorder, Type on FMS, etc.) without any
+  // per-sheet hardcoding.
+  const CARD_ALREADY_SHOWN = new Set(["Doer","Step Code","Step Id","Step","Planned","Site Code","Deley","Status","Work Order","MR","Vendor Name","Vendor","ID"]);
+  const extraHeaders = headers.filter(h =>
+    !CARD_ALREADY_SHOWN.has(h) && !HIDE_HEADERS.has(h) &&
+    !LINK_HEADER_HINT.test(h) && !isLinkValue(row[h]) &&
+    row[h] !== undefined && row[h] !== ""
+  ).slice(0, 3);
+  if (extraHeaders.length) {
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    extraHeaders.forEach(h => {
+      const f = document.createElement("div");
+      f.className = "field";
+      f.innerHTML = `<div class="k">${escapeHtml(h)}</div><div class="v">${escapeHtml(row[h])}</div>`;
+      grid.appendChild(f);
+    });
+    card.appendChild(grid);
+  }
+
+  const linkRow = document.createElement("div");
+  linkRow.className = "link-row";
+  headers.forEach(h => {
+    if (h === "Status") return;
+    const url = row[h];
+    if (!url || !isLinkValue(url)) return;
+    const a = document.createElement("a");
+    a.href = url; a.target = "_blank"; a.rel = "noopener";
+    a.className = "link-pill";
+    const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
+    a.innerHTML = `${escapeHtml(label)} ↗`;
+    linkRow.appendChild(a);
+  });
+  if (linkRow.children.length) card.appendChild(linkRow);
+
+  const isAdmin = !CURRENT_ACCESS || CURRENT_ACCESS.role === "admin";
+  if (isAdmin) {
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+    if (status === "done") {
+      const reopenBtn = document.createElement("button");
+      reopenBtn.className = "btn reopen";
+      reopenBtn.textContent = "Reopen";
+      reopenBtn.onclick = () => toggleStatus(row, sheetName, "markPending", reopenBtn);
+      actions.appendChild(reopenBtn);
+    } else {
+      const waBtn = document.createElement("button");
+      waBtn.className = "btn whatsapp";
+      waBtn.innerHTML = `${WHATSAPP_ICON}<span>Remind</span>`;
+      waBtn.onclick = (e) => { e.stopPropagation(); openWhatsAppReminder(row, headers); };
+      actions.appendChild(waBtn);
+
+      const doneBtn = document.createElement("button");
+      const taskName = getField(row, "Step") || getField(row, "Task") || "";
+      const action = findTaskAction(taskName);
+      if (action) {
+        doneBtn.className = "btn action";
+        doneBtn.innerHTML = `${LINK_ICON}<span>${escapeHtml(action.label)}</span>`;
+        doneBtn.onclick = (e) => { e.stopPropagation(); window.open(action.url, "_blank"); };
+      } else {
+        doneBtn.className = "btn complete";
+        doneBtn.innerHTML = `${CHECK_ICON}<span>Mark Complete</span>`;
+        doneBtn.onclick = () => toggleStatus(row, sheetName, "markComplete", doneBtn);
+      }
+      actions.appendChild(doneBtn);
+    }
+    card.appendChild(actions);
+  }
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".link-pill") || e.target.closest(".btn")) return;
+    openModal(row, headers, sheetName);
+  });
+
+  return card;
+}
+
+async function toggleStatus(row, sheetName, action, btnEl){
+  btnEl.disabled = true;
+  btnEl.textContent = "...";
+  try {
+    const doneBy = getField(row, "Doer") || "";
+    await fetch(CONFIG.API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, sheet: sheetName, row: row._row, doneBy }),
+    });
+    await loadData(false);
+  } catch (err) {
+    btnEl.disabled = false;
+    alert("Update failed: " + err.message);
+  }
+}
+
+function openModal(row, headers, sheetName){
+  const status = rowStatus(row);
+  const overdue = overdueRow(row) && status !== "done";
+  const stepCode = getField(row, "Step Code") || getField(row, "Step Id");
+  const step = getField(row, "Step");
+  const doer = getField(row, "Doer");
+  const subtitle = pickSubtitle(row, headers);
+  const isAdminModal = !CURRENT_ACCESS || CURRENT_ACCESS.role === "admin";
+
+  const linkFields = headers.filter(h => h !== "Status" && isLinkValue(row[h]));
+  const textFields = headers.filter(h => h !== "Status" && !isLinkValue(row[h]) && row[h] !== undefined && row[h] !== "" && !HIDE_HEADERS.has(h));
+
+  const root = $("#modalRoot");
+  root.innerHTML = `
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-panel">
+        <div class="modal-head">
+          <div>
+            <h2>${escapeHtml(doer || subtitle || "Task")}</h2>
+            <div class="modal-sub">${escapeHtml(sheetName)} · ROW ${row._row}${subtitle && doer ? " · " + escapeHtml(subtitle) : ""}</div>
+          </div>
+          <button class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+
+        <div class="modal-status-row pill-row">
+          <span class="pill ${overdue ? "overdue" : (status === "done" ? "done" : "site")}">${overdue ? "Overdue" : (status === "done" ? "Completed" : "Pending")}</span>
+          ${stepCode ? `<span class="pill step">${escapeHtml(stepCode)}</span>` : ""}
+        </div>
+
+        ${step ? `<div class="step-line" style="font-size:13px;">${escapeHtml(step)}</div>` : ""}
+
+        <div class="modal-section">
+          <h4>Details</h4>
+          <div class="modal-grid">
+            ${textFields.map(h => `
+              <div class="modal-field">
+                <div class="k">${escapeHtml(h)}</div>
+                <div class="v">${escapeHtml(row[h])}</div>
+              </div>`).join("")}
+          </div>
+        </div>
+
+        ${linkFields.length ? `
+        <div class="modal-section">
+          <h4>Links</h4>
+          <div class="modal-links">
+            ${linkFields.map(h => {
+              const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
+              return `<a class="link-pill" href="${escapeHtml(row[h])}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`;
+            }).join("")}
+          </div>
+        </div>` : ""}
+
+        <div class="modal-actions">
+          ${isAdminModal ? `
+          ${status !== "done" ? `<button class="btn whatsapp" id="modalWaBtn">${WHATSAPP_ICON}<span>Remind on WhatsApp</span></button>` : ""}
+          ${(() => {
+            if (status === "done") return `<button class="btn reopen" id="modalActionBtn">Reopen</button>`;
+            const action = findTaskAction(step);
+            if (action) return `<button class="btn action" id="modalActionBtn">${LINK_ICON}<span>${escapeHtml(action.label)}</span></button>`;
+            return `<button class="btn complete" id="modalActionBtn">${CHECK_ICON}<span>Mark Complete</span></button>`;
+          })()}` : ""}
+        </div>
+      </div>
+    </div>`;
+
+  $("#modalOverlay").addEventListener("click", (e) => { if (e.target.id === "modalOverlay") closeModal(); });
+  $("#modalCloseBtn").addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+
+  if (!isAdminModal) return;
+
+  if ($("#modalWaBtn")) {
+    $("#modalWaBtn").addEventListener("click", () => openWhatsAppReminder(row, headers));
+  }
+
+  $("#modalActionBtn").addEventListener("click", async (e) => {
+    const btnEl = e.currentTarget;
+    if (status !== "done") {
+      const action = findTaskAction(step);
+      if (action) { window.open(action.url, "_blank"); closeModal(); return; }
+    }
+    const nextAction = status === "done" ? "markPending" : "markComplete";
+    btnEl.disabled = true; btnEl.textContent = "...";
+    await toggleStatus(row, sheetName, nextAction, btnEl);
+    closeModal();
+  });
+}
+
+function openSettingsModal(){
+  const steps = collectAllStepNames();
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "settingsOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "640px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>Manage Buttons</h2>
+        <div class="modal-sub">Rename "Mark Complete" and add a link for any task. Saved changes apply to every card for that task, right on this dashboard.</div>
+      </div>
+      <button class="modal-close" id="settingsCloseBtn">✕</button>
+    </div>
+    <div class="modal-section">
+      <div id="settingsRows"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn action" id="settingsSaveBtn">${CHECK_ICON}<span>Save Changes</span></button>
+    </div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  const rowsWrap = $("#settingsRows", panel);
+  if (!steps.length) {
+    rowsWrap.innerHTML = `<p class="settings-hint">No tasks found — let the dashboard data load first, then try again.</p>`;
+  } else {
+    steps.forEach(stepName => {
+      const current = findTaskAction(stepName);
+      const row = document.createElement("div");
+      row.className = "settings-row";
+      row.dataset.step = stepName;
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "settings-row-name";
+      nameEl.textContent = stepName;
+
+      const labelInput = document.createElement("input");
+      labelInput.type = "text";
+      labelInput.className = "settings-label";
+      labelInput.placeholder = "Button text (blank = Mark Complete)";
+      labelInput.value = current ? (current.label || "") : "";
+
+      const urlInput = document.createElement("input");
+      urlInput.type = "url";
+      urlInput.className = "settings-url";
+      urlInput.placeholder = "Link to open (blank = keep default Mark Complete)";
+      urlInput.value = current ? (current.url || "") : "";
+
+      row.appendChild(nameEl);
+      row.appendChild(labelInput);
+      row.appendChild(urlInput);
+      rowsWrap.appendChild(row);
+    });
+  }
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "settingsOverlay") closeModal(); });
+  $("#settingsCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+
+  $("#settingsSaveBtn", panel).addEventListener("click", () => {
+    const newOverrides = {};
+    $all(".settings-row", rowsWrap).forEach(row => {
+      const step = row.dataset.step;
+      const label = row.querySelector(".settings-label").value.trim();
+      const url = row.querySelector(".settings-url").value.trim();
+      if (url) newOverrides[step] = { label: label || "Open Link", url };
+    });
+    TASK_ACTION_OVERRIDES = newOverrides;
+    saveOverrides(newOverrides);
+    closeModal();
+    renderBoard();
+  });
+}
+
+/* ------------------------------------------------------------
+   BULK WHATSAPP REMINDER — combines every pending task a Doer has
+   (in the currently open tab) into ONE WhatsApp message, so admin
+   doesn't have to send a separate message per task.
+   ------------------------------------------------------------ */
+function buildBulkReminderMessage(doer, rows, sheetName){
+  let msg = `*DIAMETRIC BUILDS*\n_Pending Tasks Reminder_\n\n`;
+  msg += `Dear ${doer},\n`;
+  msg += `You have ${rows.length} pending task${rows.length === 1 ? "" : "s"}`;
+  if (sheetName) msg += ` on *${sheetName}*`;
+  msg += `:\n\n`;
+
+  rows.forEach((row, i) => {
+    const task = getField(row, "Step") || "Task";
+    const overdue = overdueRow(row);
+    const bits = [];
+    const site = getField(row, "Site Code");
+    const amt = getField(row, "Amt");
+    const client = getField(row, "Clint Name") || getField(row, "Client Name");
+    if (site) bits.push(`Site: ${site}`);
+    if (client) bits.push(`Client: ${client}`);
+    if (amt !== undefined && amt !== "") bits.push(`Amount: ${prettyFieldValue("Amt", amt)}`);
+    msg += `${i + 1}. *${task}*${overdue ? " ⚠️ Overdue" : ""}`;
+    if (bits.length) msg += `\n   ${bits.join(" · ")}`;
+    msg += `\n`;
+  });
+
+  msg += `\nPlease complete these at the earliest.\n– Diametric Builds`;
+  return msg;
+}
+function openBulkWhatsAppReminder(doer, rows, sheetName){
+  const phone = normalizePhone(getDoerPhone(doer));
+  if (!phone) {
+    alert(`"${doer}"'s WhatsApp number is not set in Doer Numbers. Please add it there first.`);
+    openDoerDirectoryModal();
+    return false;
+  }
+  const text = encodeURIComponent(buildBulkReminderMessage(doer, rows, sheetName));
+  window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+  return true;
+}
+
+/* ------------------------------------------------------------
+   PENDING TRACKER — doer-wise summary of pending/overdue tasks in
+   the currently open tab, sorted with the most overdue people
+   first, plus one-click bulk WhatsApp reminders.
+   ------------------------------------------------------------ */
+function buildDoerTrackerData(){
+  const s = currentSheetObj();
+  if (!s) return { sheetName: "", entries: [] };
+  const byDoer = {};
+  s.rows.forEach(row => {
+    if (rowStatus(row) === "done") return;
+    const doer = getField(row, "Doer") || "Unassigned";
+    if (!byDoer[doer]) byDoer[doer] = [];
+    byDoer[doer].push(row);
+  });
+  const entries = Object.keys(byDoer).map(doer => {
+    const rows = byDoer[doer];
+    const overdueCount = rows.filter(overdueRow).length;
+    return { doer, rows, pendingCount: rows.length, overdueCount };
+  }).sort((a, b) => b.overdueCount - a.overdueCount || b.pendingCount - a.pendingCount);
+  return { sheetName: s.sheet, entries };
+}
+
+function openTrackerModal(){
+  const { sheetName, entries } = buildDoerTrackerData();
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "trackerOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "560px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>Pending Tracker</h2>
+        <div class="modal-sub">${escapeHtml(sheetName)} · sorted by most overdue first</div>
+      </div>
+      <button class="modal-close" id="trackerCloseBtn">✕</button>
+    </div>
+    <div class="modal-actions" style="justify-content:flex-start;margin:14px 0 4px;">
+      <button class="btn whatsapp" id="trackerRemindAllBtn">${WHATSAPP_ICON}<span>Remind All Overdue</span></button>
+    </div>
+    <div class="modal-section"><div id="trackerRows"></div></div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  const rowsWrap = $("#trackerRows", panel);
+  if (!entries.length) {
+    rowsWrap.innerHTML = `<p class="settings-hint">No pending tasks in this tab — all clear.</p>`;
+  } else {
+    entries.forEach(entry => {
+      const row = document.createElement("div");
+      row.className = "tracker-row";
+      const badgesHtml = `
+        <span class="tracker-badge pending">${entry.pendingCount} pending</span>
+        ${entry.overdueCount ? `<span class="tracker-badge overdue">${entry.overdueCount} overdue</span>` : `<span class="tracker-badge none">on time</span>`}`;
+      row.innerHTML = `
+        <div>
+          <div class="tracker-name">${escapeHtml(entry.doer)}</div>
+          <div class="tracker-counts">${badgesHtml}</div>
+        </div>`;
+      const waBtn = document.createElement("button");
+      waBtn.className = "btn whatsapp";
+      waBtn.innerHTML = `${WHATSAPP_ICON}<span>Remind</span>`;
+      waBtn.onclick = () => openBulkWhatsAppReminder(entry.doer, entry.rows, sheetName);
+      row.appendChild(waBtn);
+      rowsWrap.appendChild(row);
+    });
+  }
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "trackerOverlay") closeModal(); });
+  $("#trackerCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+
+  $("#trackerRemindAllBtn", panel).addEventListener("click", () => {
+    const overdueEntries = entries.filter(e => e.overdueCount > 0);
+    if (!overdueEntries.length) { alert("There are no overdue tasks right now."); return; }
+    if (!confirm(`Send a WhatsApp reminder to ${overdueEntries.length} Doer(s)? A new tab will open for each — please allow browser popups.`)) return;
+    overdueEntries.forEach((entry, i) => {
+      setTimeout(() => openBulkWhatsAppReminder(entry.doer, entry.rows, sheetName), i * 400);
+    });
+  });
+}
+
+/* ------------------------------------------------------------
+   AGING TRACKER — every pending task across EVERY tab, sorted so
+   the task that's been overdue the longest is at the top. Helps a
+   process coordinator see what's been stuck longest, regardless
+   of which sheet or which Doer it belongs to.
+   ------------------------------------------------------------ */
+function buildAgingTrackerData(){
+  const entries = [];
+  STATE.sheets.forEach(s => {
+    s.rows.forEach(row => {
+      if (rowStatus(row) === "done") return;
+      const ageDays = computeAgeDays(row);
+      if (ageDays === null) return;
+      entries.push({ row, sheet: s.sheet, headers: s.headers, ageDays });
+    });
+  });
+  entries.sort((a, b) => b.ageDays - a.ageDays); // most overdue first
+  return entries;
+}
+
+function openAgingTrackerModal(){
+  const entries = buildAgingTrackerData();
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "agingOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "600px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>Aging Tracker</h2>
+        <div class="modal-sub">All tabs · oldest overdue task first</div>
+      </div>
+      <button class="modal-close" id="agingCloseBtn">✕</button>
+    </div>
+    <div class="modal-section"><div id="agingRows"></div></div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  const rowsWrap = $("#agingRows", panel);
+  if (!entries.length) {
+    rowsWrap.innerHTML = `<p class="settings-hint">No pending tasks found across any tab.</p>`;
+  } else {
+    entries.forEach(entry => {
+      const { row, sheet, headers, ageDays } = entry;
+      const doer = getField(row, "Doer") || "Unassigned";
+      const task = getField(row, "Step") || "Task";
+      const isOverdue = ageDays > 0;
+      const badgeText = isOverdue
+        ? `${ageDays.toFixed(1)}d overdue`
+        : `due in ${Math.abs(ageDays).toFixed(1)}d`;
+
+      const rowEl = document.createElement("div");
+      rowEl.className = "aging-row";
+      rowEl.innerHTML = `
+        <div style="min-width:0;">
+          <div class="aging-row-name">${escapeHtml(task)}</div>
+          <div class="aging-row-sub">${escapeHtml(doer)} · ${escapeHtml(sheet)}</div>
+        </div>
+        <span class="aging-badge ${isOverdue ? "overdue" : "upcoming"}">${badgeText}</span>`;
+      rowEl.style.cursor = "pointer";
+      rowEl.addEventListener("click", () => { closeModal(); openModal(row, headers, sheet); });
+      rowsWrap.appendChild(rowEl);
+    });
+  }
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "agingOverlay") closeModal(); });
+  $("#agingCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+}
+
+function openEmailAlertsModal(){
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "emailAlertsOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "480px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>Email Alerts</h2>
+        <div class="modal-sub">Who receives the automatic daily pending/overdue summary email (sent every morning).</div>
+      </div>
+      <button class="modal-close" id="emailAlertsCloseBtn">✕</button>
+    </div>
+    <div class="modal-section">
+      <label class="settings-hint" style="display:block;margin-bottom:6px;">Recipient emails (one per line)</label>
+      <textarea id="digestEmailsInput" rows="5" placeholder="Loading current list..." style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:12.5px;resize:vertical;"></textarea>
+    </div>
+    <div class="access-error" id="emailAlertsError"></div>
+    <div class="modal-actions">
+      <button class="btn action" id="emailAlertsSaveBtn">${CHECK_ICON}<span>Save Recipients</span></button>
+    </div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "emailAlertsOverlay") closeModal(); });
+  $("#emailAlertsCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+
+  const textarea = $("#digestEmailsInput", panel);
+  fetch(`${CONFIG.API_URL}?action=getDigestRecipients`)
+    .then(res => res.json())
+    .then(data => { textarea.value = (data.emails || []).join("\n"); textarea.placeholder = "name@example.com"; })
+    .catch(() => { textarea.placeholder = "name@example.com"; });
+
+  $("#emailAlertsSaveBtn", panel).addEventListener("click", async () => {
+    const errEl = $("#emailAlertsError", panel);
+    errEl.textContent = "";
+    const emails = textarea.value.split("\n").map(e => e.trim()).filter(Boolean);
+
+    const btn = $("#emailAlertsSaveBtn", panel);
+    btn.disabled = true;
+    btn.innerHTML = `<span>Saving...</span>`;
+    try {
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "setDigestRecipients", emails }),
+      });
+      const data = await res.json();
+      if (data.error) { errEl.textContent = data.error; }
+      else { closeModal(); }
+    } catch (err) {
+      errEl.textContent = "Save failed: " + err.message;
+    }
+    btn.disabled = false;
+    btn.innerHTML = `${CHECK_ICON}<span>Save Recipients</span>`;
+  });
+}
+
+function openNewTabModal(){
+  const root = $("#modalRoot");
+
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "newTabOverlay";
+  const panel = document.createElement("div");
+  panel.className = "modal-panel";
+  panel.style.maxWidth = "480px";
+  panel.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>New Tab</h2>
+        <div class="modal-sub">A new task tab will be created right here — no need to open the Google Sheet.</div>
+      </div>
+      <button class="modal-close" id="newTabCloseBtn">✕</button>
+    </div>
+    <div class="modal-section">
+      <label class="settings-hint" style="display:block;margin-bottom:6px;">Tab Name</label>
+      <input type="text" id="newTabName" placeholder="e.g. Site Visits" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-family:var(--font-body);font-size:13px;">
+    </div>
+    <div class="modal-section">
+      <label class="settings-hint" style="display:block;margin-bottom:6px;">
+        Columns (comma-separated — leave blank to use the default set)
+      </label>
+      <input type="text" id="newTabHeaders" placeholder="Doer, Step, Planned, Deley, Site Code, Amt, Status" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-family:var(--font-body);font-size:13px;">
+    </div>
+    <div class="access-error" id="newTabError"></div>
+    <div class="modal-actions">
+      <button class="btn action" id="newTabCreateBtn">${CHECK_ICON}<span>Create Tab</span></button>
+    </div>`;
+  overlay.appendChild(panel);
+  root.innerHTML = "";
+  root.appendChild(overlay);
+
+  overlay.addEventListener("click", (e) => { if (e.target.id === "newTabOverlay") closeModal(); });
+  $("#newTabCloseBtn", panel).addEventListener("click", closeModal);
+  document.addEventListener("keydown", escCloseModal);
+  $("#newTabName", panel).focus();
+
+  $("#newTabCreateBtn", panel).addEventListener("click", async () => {
+    const errEl = $("#newTabError", panel);
+    errEl.textContent = "";
+    const name = $("#newTabName", panel).value.trim();
+    if (!name) { errEl.textContent = "Please enter a tab name."; return; }
+    const headersRaw = $("#newTabHeaders", panel).value.trim();
+    const headers = headersRaw ? headersRaw.split(",").map(h => h.trim()).filter(Boolean) : [];
+
+    const btn = $("#newTabCreateBtn", panel);
+    btn.disabled = true;
+    btn.innerHTML = `<span>Creating...</span>`;
+    try {
+      const res = await fetch(CONFIG.API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "createTab", name, headers }),
+      });
+      const data = await res.json();
+      if (data.error) { errEl.textContent = data.error; btn.disabled = false; btn.innerHTML = `${CHECK_ICON}<span>Create Tab</span>`; return; }
+      closeModal();
+      await loadData(false);
+      STATE.activeSheet = name;
+      renderTabs(); populateFilterOptions(); renderBoard();
+    } catch (err) {
+      errEl.textContent = "Create failed: " + err.message;
+      btn.disabled = false;
+      btn.innerHTML = `${CHECK_ICON}<span>Create Tab</span>`;
+    }
+  });
+}
+
+function escCloseModal(e){
+  if (e.key === "Escape") closeModal();
+}
+
+function closeModal(){
+  $("#modalRoot").innerHTML = "";
+  document.removeEventListener("keydown", escCloseModal);
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}
+
+// ---- wire up controls ----
+$("#settingsBtn").addEventListener("click", openSettingsModal);
+$("#doerNumbersBtn").addEventListener("click", openDoerDirectoryModal);
+$("#trackerBtn").addEventListener("click", openTrackerModal);
+$("#agingBtn").addEventListener("click", openAgingTrackerModal);
+$("#emailAlertsBtn").addEventListener("click", openEmailAlertsModal);
+$("#newTabBtn").addEventListener("click", openNewTabModal);
+$("#assignAccessBtn").addEventListener("click", openEmailDirectoryModal);
+$("#refreshBtn").addEventListener("click", () => loadData(false));
+$("#searchInput").addEventListener("input", (e) => { STATE.query = e.target.value; renderBoard(); });
+$("#fAssignee").addEventListener("change", (e) => { STATE.assignee = e.target.value; renderBoard(); });
+$("#fSite").addEventListener("change", (e) => { STATE.site = e.target.value; renderBoard(); });
+$("#fStart").addEventListener("change", (e) => { STATE.dateStart = e.target.value; renderBoard(); });
+$("#fEnd").addEventListener("change", (e) => { STATE.dateEnd = e.target.value; renderBoard(); });
+$("#resetBtn").addEventListener("click", () => {
+  STATE.query = ""; STATE.assignee = "all"; STATE.site = "all"; STATE.dateStart = ""; STATE.dateEnd = "";
+  $("#searchInput").value = ""; $("#fAssignee").value = "all"; $("#fSite").value = "all";
+  $("#fStart").value = ""; $("#fEnd").value = "";
+  renderBoard();
+});
+
+/* ============================================================
+   ACCESS GATE — email-based, no backend needed
+   ============================================================ */
+const ACCESS_KEY = "diametric_current_access";
+let CURRENT_ACCESS = null;
+
+function getStoredAccess(){
+  try { return JSON.parse(localStorage.getItem(ACCESS_KEY)); }
+  catch (e) { return null; }
+}
+function saveStoredAccess(a){ localStorage.setItem(ACCESS_KEY, JSON.stringify(a)); }
+function clearStoredAccess(){ localStorage.removeItem(ACCESS_KEY); }
+
+function renderAccessGate(){
+  const root = $("#accessRoot");
+  root.innerHTML = `
+    <div class="access-overlay">
+      <div class="access-card">
+        <div class="access-brand">
+          <div class="brand-mark">DB</div>
+          <div>
+            <h2>Purchase Task Board</h2>
+            <p class="sub">Diametric Builds — enter your email</p>
+          </div>
+        </div>
+        <label>Email</label>
+        <input type="email" id="accessEmail" autocomplete="email" placeholder="name@example.com">
+        <button class="access-submit" id="accessSubmitBtn">Continue</button>
+        <div class="access-error" id="accessError"></div>
+      </div>
+    </div>`;
+  $("#accessSubmitBtn").addEventListener("click", attemptAccess);
+  $("#accessEmail").addEventListener("keydown", (e) => { if (e.key === "Enter") attemptAccess(); });
+  $("#accessEmail").focus();
+}
+
+function attemptAccess(){
+  const email = $("#accessEmail").value.trim();
+  const errEl = $("#accessError");
+  errEl.textContent = "";
+  if (!email) { errEl.textContent = "Please enter your email."; return; }
+
+  const access = resolveAccess(email);
+  if (!access) {
+    errEl.textContent = "This email didn't match any task. Ask the admin to add your email (Assign Access panel).";
+    return;
+  }
+  saveStoredAccess(access);
+  startAppWithAccess(access);
+}
+
+function startAppWithAccess(access){
+  CURRENT_ACCESS = access;
+  $("#accessRoot").innerHTML = "";
+  document.body.classList.remove("pre-access");
+  applyAccessRestrictions(access);
+  loadData(true);
+  if (CONFIG.AUTO_REFRESH_MS > 0) {
+    setInterval(() => loadData(false), CONFIG.AUTO_REFRESH_MS);
+  }
+}
+
+function applyAccessRestrictions(access){
+  const isAdmin = access.role === "admin";
+  const settingsBtn = $("#settingsBtn");
+  const doerBtn = $("#doerNumbersBtn");
+  const assignBtn = $("#assignAccessBtn");
+  const newTabBtn = $("#newTabBtn");
+  const trackerBtn = $("#trackerBtn");
+  const agingBtn = $("#agingBtn");
+  const emailAlertsBtn = $("#emailAlertsBtn");
+  if (settingsBtn) settingsBtn.style.display = isAdmin ? "" : "none";
+  if (doerBtn) doerBtn.style.display = isAdmin ? "" : "none";
+  if (assignBtn) assignBtn.style.display = isAdmin ? "" : "none";
+  if (newTabBtn) newTabBtn.style.display = isAdmin ? "" : "none";
+  if (trackerBtn) trackerBtn.style.display = isAdmin ? "" : "none";
+  if (agingBtn) agingBtn.style.display = isAdmin ? "" : "none";
+  if (emailAlertsBtn) emailAlertsBtn.style.display = isAdmin ? "" : "none";
+
+  if (!isAdmin) {
+    const assigneeField = $("#fAssignee").closest(".f-field");
+    if (assigneeField) assigneeField.style.display = "none";
+    STATE.assignee = access.doer || "all";
+  }
+  renderAccessBadge(access);
+}
+
+function renderAccessBadge(access){
+  let badge = $("#accessBadge");
+  if (!badge) {
+    badge = document.createElement("div");
+    badge.id = "accessBadge";
+    badge.style.cssText = "display:flex;align-items:center;gap:8px;";
+    $(".synced").prepend(badge);
+  }
+  badge.innerHTML = `
+    <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);">
+      ${escapeHtml(access.doer || access.email)}${access.role === "admin" ? " · admin" : ""}
+    </span>
+    <button class="refresh-btn" id="switchAccountBtn">Switch account</button>`;
+  $("#switchAccountBtn").addEventListener("click", () => { clearStoredAccess(); location.reload(); });
+}
+
+function bootstrapAccess(){
+  const stored = getStoredAccess();
+  if (stored && resolveAccess(stored.email)) {
+    startAppWithAccess(resolveAccess(stored.email));
+  } else {
+    if (stored) clearStoredAccess();
+    renderAccessGate();
+  }
+}
+bootstrapAccess();
+</script>
+</body>
+</html>
