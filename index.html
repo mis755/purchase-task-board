@@ -548,7 +548,7 @@ function buildReminderMessage(row, headers){
   if (textLines.length) msg += textLines.join("\n") + `\n\n`;
 
   if (taskLink && isLinkValue(taskLink)) {
-    msg += `📎 *Task Link:* ${taskLink}\n\n`;
+    msg += `📎 *Task Link:* ${stripQuotes(taskLink)}\n\n`;
   }
 
   msg += `Please complete at the earliest.\n– Diametric Builds`;
@@ -781,8 +781,14 @@ let STATE = {
 function $(sel, root=document){ return root.querySelector(sel); }
 function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
 
+// Strips surrounding quote characters (straight or curly) and whitespace,
+// so a sheet value like `"https://..."` (typed/pasted with quotes) is
+// still recognized and opened as a clean link.
+function stripQuotes(v){
+  return typeof v === "string" ? v.trim().replace(/^[""'']+|[""'']+$/g, "").trim() : v;
+}
 function isLinkValue(v){
-  return typeof v === "string" && /^https?:\/\//i.test(v.trim());
+  return typeof v === "string" && /^https?:\/\//i.test(stripQuotes(v));
 }
 // Looks up a field by exact header name first, then falls back to a
 // trim+case-insensitive match — protects against hidden whitespace in a
@@ -1148,8 +1154,9 @@ function renderCard(row, headers, sheetName, colKey){
   linkRow.className = "link-row";
   headers.forEach(h => {
     if (h === "Status") return;
-    const url = row[h];
-    if (!url || !isLinkValue(url)) return;
+    const rawUrl = row[h];
+    if (!rawUrl || !isLinkValue(rawUrl)) return;
+    const url = stripQuotes(rawUrl);
     const a = document.createElement("a");
     a.href = url; a.target = "_blank"; a.rel = "noopener";
     a.className = "link-pill";
@@ -1265,7 +1272,7 @@ function openModal(row, headers, sheetName){
           <div class="modal-links">
             ${linkFields.map(h => {
               const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
-              return `<a class="link-pill" href="${escapeHtml(row[h])}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`;
+              return `<a class="link-pill" href="${escapeHtml(stripQuotes(row[h]))}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`;
             }).join("")}
           </div>
         </div>` : ""}
