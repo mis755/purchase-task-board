@@ -765,7 +765,10 @@ const LINK_LABEL_OVERRIDES = {
 };
 function getLinkLabel(h){
   const key = h.trim().toLowerCase();
-  if (LINK_LABEL_OVERRIDES[key]) return LINK_LABEL_OVERRIDES[key];
+  // Match "Action" as a whole word so headers like "Action", "Action Link",
+  // "Action Item" etc. all get the same custom label below — not just an
+  // exact "Action" header.
+  if (/\baction\b/.test(key)) return "Quotation Link";
   return LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
 }
 const HIDE_HEADERS = new Set(["_row", "_sheet", "Status"]);
