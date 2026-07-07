@@ -757,6 +757,17 @@ const CHECK_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" 
 const LINK_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
 const LINK_HEADER_HINT = /link|proof|invoice|grn|pdf|quotation|\bpo\b|task|view|action|workorder|report|summary/i;
+// Custom display labels for specific link-pill headers — add a line below
+// to rename how a column's link button appears on cards/modal, without
+// renaming the actual column in the sheet.
+const LINK_LABEL_OVERRIDES = {
+  "action": "Quotation Link",
+};
+function getLinkLabel(h){
+  const key = h.trim().toLowerCase();
+  if (LINK_LABEL_OVERRIDES[key]) return LINK_LABEL_OVERRIDES[key];
+  return LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
+}
 const HIDE_HEADERS = new Set(["_row", "_sheet", "Status"]);
 const PRIORITY_HEADERS = ["Doer","Site Code","Location","Planned","Deley","Vendor","Vendor Name","Clint Name","Amt","Grand Total","Advance","Balance","MR","Work Order","Step Code","Step Id","Type"];
 const AVATAR_COLORS = ["#2D6CDF","#12A594","#C0398C","#0E8FA6","#D6493F","#7A5AF8","#0B7A99","#B5750C"];
@@ -1160,7 +1171,7 @@ function renderCard(row, headers, sheetName, colKey){
     const a = document.createElement("a");
     a.href = url; a.target = "_blank"; a.rel = "noopener";
     a.className = "link-pill";
-    const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
+    const label = getLinkLabel(h);
     a.innerHTML = `${escapeHtml(label)} ↗`;
     linkRow.appendChild(a);
   });
@@ -1271,7 +1282,7 @@ function openModal(row, headers, sheetName){
           <h4>Links</h4>
           <div class="modal-links">
             ${linkFields.map(h => {
-              const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
+              const label = getLinkLabel(h);
               return `<a class="link-pill" href="${escapeHtml(stripQuotes(row[h]))}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`;
             }).join("")}
           </div>
