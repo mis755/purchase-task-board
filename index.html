@@ -8,164 +8,204 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #F5F7FA;
+    --bg: #EDF2F7;
+    --bg-grid: #E3EAF2;
     --surface: #FFFFFF;
-    --surface-2: #EEF2F7;
+    --surface-2: #E7ECF3;
     --card: #FFFFFF;
-    --card-hover: #FBFCFE;
-    --border: #E2E7EF;
-    --text: #1F2733;
-    --text-soft: #5B6472;
-    --text-faint: #94A0B2;
-    --line: #2D6CDF;
-    --line-bg: #EAF1FE;
-    --amber: #B5750C;
-    --amber-bg: #FCF2DF;
-    --red: #D6493F;
-    --red-bg: #FCEBEA;
-    --green: #12A594;
-    --green-bg: #E3F8F5;
-    --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
-    --shadow-md: 0 10px 26px rgba(16,24,40,.10);
-    --radius: 12px;
+    --card-hover: #FAFCFE;
+    --border: #D8E1EB;
+    --text: #16212E;
+    --text-soft: #4C5A6C;
+    --text-faint: #8A97A8;
+    --line: #1B5DA6;
+    --line-bg: #E4EEFB;
+    --safety: #D9631E;
+    --safety-bg: #FCE7D7;
+    --amber: #A9720B;
+    --amber-bg: #FBF1DC;
+    --red: #C0392E;
+    --red-bg: #FBEAE8;
+    --green: #0E8F79;
+    --green-bg: #E0F5F0;
+    --shadow-sm: 0 1px 2px rgba(16,24,40,.05), 0 1px 1px rgba(16,24,40,.03);
+    --shadow-md: 0 14px 32px rgba(16,24,40,.12);
+    --shadow-lg: 0 24px 60px rgba(16,24,40,.20);
+    --radius: 14px;
+    --radius-sm: 10px;
     --font-display: 'Space Grotesk', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+  body{
+    margin:0;color:var(--text);font-family:var(--font-body);
+    background:
+      radial-gradient(circle, var(--bg-grid) 1px, transparent 1px) 0 0/22px 22px,
+      var(--bg);
+  }
   ::selection{background:var(--line);color:#fff;}
+  :focus-visible{outline:2px solid var(--line);outline-offset:2px;border-radius:4px;}
 
   /* ---------- Title bar ---------- */
   .titlebar{
     background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm);
-    padding:16px clamp(14px,3vw,32px);display:flex;justify-content:space-between;
-    align-items:center;flex-wrap:wrap;gap:14px;position:relative;z-index:2;
+    padding:14px clamp(14px,3vw,32px);display:flex;justify-content:space-between;
+    align-items:center;flex-wrap:wrap;gap:14px;position:sticky;top:0;z-index:20;
   }
-  .brand{display:flex;align-items:center;gap:12px;}
+  .brand{display:flex;align-items:center;gap:13px;}
   .brand-mark{
-    width:38px;height:38px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--line),#6EA0F5);
+    width:40px;height:40px;border:none;border-radius:10px;
+    background:linear-gradient(150deg,var(--line) 0%,var(--line) 60%,var(--safety) 150%);
     display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
-    font-weight:700;font-size:12px;color:#fff;flex:none;box-shadow:0 4px 10px rgba(45,108,223,.28);
+    font-weight:700;font-size:12px;color:#fff;flex:none;box-shadow:0 4px 12px rgba(27,93,166,.32);
+    position:relative;
   }
-  .brand-text h1{font-family:var(--font-display);font-size:18px;margin:0;font-weight:600;color:var(--text);}
-  .brand-text p{margin:2px 0 0;font-size:11px;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.4px;}
-  .synced{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);display:flex;align-items:center;gap:10px;}
+  .brand-mark::after{
+    content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.35);border-radius:7px;pointer-events:none;
+  }
+  .brand-text h1{font-family:var(--font-display);font-size:17.5px;margin:0;font-weight:700;color:var(--text);letter-spacing:-.2px;}
+  .brand-text p{margin:2px 0 0;font-size:10.5px;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.6px;}
+  .synced{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
   .refresh-btn{
-    font-family:var(--font-mono);font-size:11.5px;padding:8px 14px;border-radius:999px;border:1px solid var(--border);
-    background:var(--surface-2);cursor:pointer;color:var(--text);display:flex;align-items:center;gap:6px;
-    transition:.15s;
+    font-family:var(--font-mono);font-size:11px;padding:8px 13px;border-radius:9px;border:1px solid var(--border);
+    background:var(--surface);cursor:pointer;color:var(--text-soft);display:flex;align-items:center;gap:6px;
+    transition:.15s;font-weight:500;
   }
-  .refresh-btn:hover{border-color:var(--line);color:var(--line);background:var(--line-bg);}
+  .refresh-btn:hover{border-color:var(--line);color:var(--line);background:var(--line-bg);transform:translateY(-1px);}
   .refresh-btn.spinning svg{animation:spin 0.8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
+  #refreshBtn{background:var(--text);color:#fff;border-color:var(--text);}
+  #refreshBtn:hover{background:var(--line);border-color:var(--line);color:#fff;}
 
   /* ---------- Sheet tabs ---------- */
   .tabs{
-    display:flex;gap:10px;padding:16px clamp(14px,3vw,32px);background:var(--bg);
+    display:flex;gap:9px;padding:16px clamp(14px,3vw,32px);background:transparent;
     overflow-x:auto;
   }
   .tab-box{
-    display:flex;align-items:center;gap:10px;padding:10px 16px 10px 12px;border-radius:999px;
+    display:flex;align-items:center;gap:10px;padding:9px 15px 9px 11px;border-radius:11px;
     background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-sm);
     cursor:pointer;white-space:nowrap;transition:.15s;flex:none;
   }
-  .tab-box:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
-  .tab-box.active{background:var(--line-bg);border-color:var(--line);}
+  .tab-box:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);border-color:var(--tab-color, var(--line));}
+  .tab-box.active{background:var(--line-bg);border-color:var(--line);box-shadow:0 0 0 1px var(--line) inset;}
   .tab-icon{
-    width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-mono);font-size:10px;font-weight:700;color:#fff;flex:none;
+    width:25px;height:25px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:9.5px;font-weight:700;color:#fff;flex:none;
     background:var(--tab-color, var(--text-faint));
   }
-  .tab-box .name{font-family:var(--font-display);font-size:13.5px;font-weight:600;color:var(--text);line-height:1.25;}
-  .tab-box .count{font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);margin-top:1px;}
+  .tab-box .name{font-family:var(--font-display);font-size:13px;font-weight:600;color:var(--text);line-height:1.25;}
+  .tab-box .count{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);margin-top:1px;}
   .tab-box.active .count{color:var(--line);}
 
-  .stats-strip{display:flex;gap:10px;padding:0 clamp(14px,3vw,32px) 16px;flex-wrap:wrap;}
+  .stats-strip{display:flex;gap:12px;padding:0 clamp(14px,3vw,32px) 18px;flex-wrap:wrap;}
   .stat-card{
-    flex:1 1 130px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-    padding:12px 16px;box-shadow:var(--shadow-sm);
+    flex:1 1 130px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:13px 16px;box-shadow:var(--shadow-sm);border-top:3px solid var(--border);
   }
-  .stat-card .stat-num{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);line-height:1;}
-  .stat-card .stat-lbl{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);margin-top:6px;}
+  .stat-card .stat-num{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--text);line-height:1;}
+  .stat-card .stat-lbl{font-family:var(--font-mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);margin-top:7px;}
+  .stat-card.c-overdue{border-top-color:var(--red);}
   .stat-card.c-overdue .stat-num{color:var(--red);}
+  .stat-card.c-done{border-top-color:var(--green);}
   .stat-card.c-done .stat-num{color:var(--green);}
 
   /* ---------- Filter bar ---------- */
   .filterbar{
     display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-    padding:14px clamp(14px,3vw,32px);background:var(--surface);border-bottom:1px solid var(--border);
+    padding:14px clamp(14px,3vw,32px);background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);
   }
-  .f-field{display:flex;flex-direction:column;gap:3px;}
-  .f-field label{font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);font-family:var(--font-mono);}
+  .f-field{display:flex;flex-direction:column;gap:4px;}
+  .f-field label{font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);font-family:var(--font-mono);}
   .f-field input, .f-field select{
     background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;
-    padding:7px 10px;font-family:var(--font-body);font-size:12.5px;outline:none;min-width:120px;
+    padding:7px 10px;font-family:var(--font-body);font-size:12.5px;outline:none;min-width:120px;transition:.15s;
   }
-  .f-field input:focus, .f-field select:focus, .search-box:focus-within{border-color:var(--line);}
+  .f-field input:focus, .f-field select:focus, .search-box:focus-within{border-color:var(--line);background:var(--surface);}
   .search-box{
-    flex:1 1 200px;display:flex;align-items:center;gap:8px;background:var(--surface-2);
-    border:1px solid var(--border);border-radius:8px;padding:8px 12px;align-self:flex-end;
+    flex:1 1 220px;display:flex;align-items:center;gap:8px;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:8px;padding:8px 12px;align-self:flex-end;transition:.15s;
   }
   .search-box input{border:none;outline:none;flex:1;font-family:var(--font-body);font-size:12.5px;background:transparent;color:var(--text);}
   .search-box input::placeholder{color:var(--text-faint);}
   .reset-btn{
-    align-self:flex-end;font-family:var(--font-mono);font-size:11.5px;padding:8px 14px;border-radius:8px;
-    border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;
+    align-self:flex-end;font-family:var(--font-mono);font-size:11px;padding:8px 14px;border-radius:8px;
+    border:1px solid var(--border);background:var(--surface-2);color:var(--text-soft);cursor:pointer;transition:.15s;
   }
-  .reset-btn:hover{color:var(--line);border-color:var(--line);}
+  .reset-btn:hover{color:var(--line);border-color:var(--line);background:var(--line-bg);}
 
   /* ---------- Board ---------- */
-  .board-wrap{padding:18px clamp(14px,3vw,32px) 50px;overflow-x:auto;}
-  .board{display:flex;gap:16px;min-width:max-content;align-items:flex-start;}
-  .column{width:320px;flex:none;}
-  .col-head{
-    display:flex;justify-content:space-between;align-items:center;padding:0 4px 10px;
-    border-bottom:2px solid var(--col-color, var(--border));margin-bottom:12px;
+  /* Equal-width, evenly-spaced columns via CSS grid instead of a fixed-width
+     horizontal-scroll flex row — this is what was making the board's overall
+     alignment feel inconsistent across screen widths. Columns now always sit
+     in the same 3 fixed slots and share the available width evenly. */
+  .board-wrap{padding:20px clamp(14px,3vw,32px) 60px;}
+  .board{
+    display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:20px;
+    max-width:1340px;margin:0 auto;align-items:start;
   }
-  .col-head h3{font-size:12.5px;font-family:var(--font-mono);letter-spacing:.6px;text-transform:uppercase;margin:0;color:var(--text-soft);}
-  .col-head .count{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);background:var(--surface-2);padding:2px 8px;border-radius:999px;}
-  .col-body{display:flex;flex-direction:column;gap:10px;min-height:40px;}
-  .col-empty{font-size:12px;color:var(--text-faint);text-align:center;padding:20px 0;border:1px dashed var(--border);border-radius:8px;}
+  @media (max-width:900px){
+    .board{grid-template-columns:1fr;max-width:640px;gap:26px;}
+  }
+  .column{min-width:0;}
+  .col-head{
+    display:flex;justify-content:space-between;align-items:center;padding:0 2px 11px;
+    border-bottom:2px solid var(--col-color, var(--border));margin-bottom:14px;
+  }
+  .col-head h3{font-size:12px;font-family:var(--font-mono);letter-spacing:.7px;text-transform:uppercase;margin:0;color:var(--text-soft);font-weight:600;}
+  .col-head .count{font-family:var(--font-mono);font-size:10.5px;color:#fff;background:var(--col-color, var(--text-faint));padding:2px 9px;border-radius:999px;font-weight:600;}
+  .col-body{display:flex;flex-direction:column;gap:12px;min-height:44px;}
+  .col-empty{font-size:12px;color:var(--text-faint);text-align:center;padding:22px 0;border:1.5px dashed var(--border);border-radius:var(--radius-sm);font-family:var(--font-mono);}
 
   /* ---------- Card ---------- */
+  /* "Job ticket" card: a solid identity color strip on the left, consistent
+     internal spacing, and a fixed two-column field grid (see .field-grid
+     below) so a card's layout never shifts around depending on how many
+     extra fields that particular row happens to have. */
   .card{
     background:var(--card);border:1px solid var(--border);border-left:4px solid var(--border);
     border-radius:var(--radius);box-shadow:var(--shadow-sm);
-    padding:15px 16px;display:flex;flex-direction:column;gap:11px;transition:.15s;cursor:pointer;
+    padding:15px 16px;display:flex;flex-direction:column;gap:12px;transition:.15s;cursor:pointer;
+    position:relative;
   }
   .card:hover{background:var(--card-hover);border-color:var(--line);border-left-color:var(--line);box-shadow:var(--shadow-md);transform:translateY(-2px);}
-  .card.card-todo{border-left-color:#C7CCD6;}
+  .card.card-todo{border-left-color:#B7C1CF;}
   .card.card-overdue{border-left-color:var(--red);}
   .card.card-done{border-left-color:var(--green);}
 
   .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
   .card-person{display:flex;align-items:center;gap:10px;min-width:0;}
   .avatar-lg{
-    width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    font-family:var(--font-mono);font-size:13px;font-weight:700;color:#fff;flex:none;
-    box-shadow:0 2px 6px rgba(16,24,40,.15);
+    width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:12.5px;font-weight:700;color:#fff;flex:none;
+    box-shadow:0 2px 6px rgba(16,24,40,.18);
   }
-  .card-person-name{font-family:var(--font-display);font-size:14.5px;font-weight:600;color:var(--text);line-height:1.3;}
-  .card-person-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .card-person-name{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--text);line-height:1.3;}
+  .card-person-sub{font-size:10.5px;color:var(--text-faint);font-family:var(--font-mono);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-  .step-line{font-size:12px;color:var(--text-soft);}
-  .step-line b{font-family:var(--font-mono);color:var(--line);margin-right:6px;}
+  .step-line{font-size:12px;color:var(--text-soft);line-height:1.5;padding:9px 10px;background:var(--surface-2);border-radius:8px;}
+  .step-line b{font-family:var(--font-mono);color:var(--line);margin-right:7px;font-weight:700;}
 
-  .pill-row{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
-  .field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px 14px;}
-  .field .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);margin-bottom:2px;}
-  .field .v{font-size:12.5px;color:var(--text);font-family:var(--font-mono);word-break:break-word;}
+  .pill-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+
+  /* Fixed 2-column grid (not auto-fill) — every card lays its extra fields
+     out in the exact same two-column rhythm regardless of how many fields
+     that row has (1, 2, 3, or 4), instead of reflowing left/center/right. */
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;padding-top:2px;}
+  .field .k{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);margin-bottom:3px;font-family:var(--font-mono);}
+  .field .v{font-size:12.5px;color:var(--text);font-family:var(--font-mono);word-break:break-word;font-weight:500;}
+
   .avatar{
-    width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;
     font-family:var(--font-mono);font-size:9.5px;font-weight:700;color:#fff;flex:none;
   }
   .pill{
-    font-family:var(--font-mono);font-size:10.5px;padding:4px 10px;border-radius:999px;font-weight:600;
+    font-family:var(--font-mono);font-size:10.5px;padding:4px 10px;border-radius:7px;font-weight:600;
     letter-spacing:.2px;white-space:nowrap;flex:none;
   }
   .pill.site{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);}
-  .pill.step{background:var(--amber-bg);color:var(--amber);}
+  .pill.step{background:var(--safety-bg);color:var(--safety);}
   .pill.date{background:var(--surface-2);color:var(--text-faint);border:1px solid var(--border);font-family:var(--font-mono);}
   .pill.overdue{background:var(--red-bg);color:var(--red);}
   .pill.done{background:var(--green-bg);color:var(--green);}
@@ -178,46 +218,47 @@
   }
   .link-pill:hover{background:var(--line);color:#fff;border-color:var(--line);}
 
-  .card-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+  .card-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:2px;border-top:1px solid var(--border);margin-top:1px;padding-top:12px;}
   .btn{
-    font-family:var(--font-body);font-size:12px;padding:8px 15px;border-radius:999px;cursor:pointer;font-weight:600;
+    font-family:var(--font-body);font-size:12px;padding:8px 15px;border-radius:9px;cursor:pointer;font-weight:600;
     border:1px solid var(--border);background:transparent;color:var(--text-soft);
     display:inline-flex;align-items:center;gap:6px;transition:.15s;
   }
+  .btn:hover{border-color:var(--line);color:var(--line);}
   .btn svg{flex:none;}
-  .btn.complete{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 3px 8px rgba(18,165,148,.30);}
-  .btn.complete:hover{background:#0e8c7e;}
-  .btn.action{background:var(--line);border-color:var(--line);color:#fff;box-shadow:0 3px 8px rgba(45,108,223,.30);}
-  .btn.action:hover{background:#2158b8;}
+  .btn.complete{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 3px 8px rgba(14,143,121,.30);}
+  .btn.complete:hover{background:#0b7663;color:#fff;}
+  .btn.action{background:var(--line);border-color:var(--line);color:#fff;box-shadow:0 3px 8px rgba(27,93,166,.30);}
+  .btn.action:hover{background:#154b87;color:#fff;}
   .btn.reopen:hover{color:var(--line);border-color:var(--line);background:var(--line-bg);}
   .btn.whatsapp{background:#25D366;border-color:#25D366;color:#fff;box-shadow:0 3px 8px rgba(37,211,102,.30);}
-  .btn.whatsapp:hover{background:#1EBE59;}
+  .btn.whatsapp:hover{background:#1EBE59;color:#fff;}
   .btn:disabled{opacity:.55;cursor:default;}
 
   .empty, .err, .loading{max-width:1180px;margin:40px auto;padding:0 clamp(14px,3vw,32px);text-align:center;color:var(--text-soft);}
   .empty h3, .err h3{font-family:var(--font-display);color:var(--text);margin-bottom:6px;}
   .err{color:var(--red);}
   .err code{background:var(--surface-2);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11.5px;border:1px solid var(--border);}
-  .skeleton{background:linear-gradient(90deg,#EBEDF1 25%,#F6F7F9 37%,#EBEDF1 63%);background-size:400% 100%;animation:sk 1.4s ease infinite;border-radius:var(--radius);height:96px;margin-bottom:12px;}
+  .skeleton{background:linear-gradient(90deg,#E4E9EF 25%,#F2F4F7 37%,#E4E9EF 63%);background-size:400% 100%;animation:sk 1.4s ease infinite;border-radius:var(--radius);height:96px;margin-bottom:12px;}
   @keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
 
   /* ---------- Detail modal ---------- */
   .modal-overlay{
-    position:fixed;inset:0;background:rgba(20,26,43,.45);backdrop-filter:blur(2px);
+    position:fixed;inset:0;background:rgba(15,23,34,.5);backdrop-filter:blur(3px);
     display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;
   }
   .modal-panel{
     width:100%;max-width:560px;max-height:86vh;overflow-y:auto;background:var(--surface);
-    border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 24px 64px rgba(16,24,40,.22);
+    border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow-lg);
   }
   .modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:4px;}
   .modal-head h2{font-family:var(--font-display);font-size:19px;margin:0;color:var(--text);}
   .modal-sub{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);margin-top:4px;}
   .modal-close{
     background:var(--surface-2);border:1px solid var(--border);color:var(--text-soft);
-    width:30px;height:30px;border-radius:8px;cursor:pointer;flex:none;font-size:15px;line-height:1;
+    width:30px;height:30px;border-radius:8px;cursor:pointer;flex:none;font-size:15px;line-height:1;transition:.15s;
   }
-  .modal-close:hover{color:var(--text);border-color:var(--line);}
+  .modal-close:hover{color:#fff;background:var(--red);border-color:var(--red);}
   .modal-status-row{margin:14px 0;}
   .modal-section{margin-top:18px;}
   .modal-section h4{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-faint);margin:0 0 10px;}
@@ -247,13 +288,6 @@
   .tracker-badge.pending{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);}
   .tracker-badge.overdue{background:var(--red-bg);color:var(--red);}
   .tracker-badge.none{background:var(--green-bg);color:var(--green);}
-  .aging-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
-  .aging-row:last-child{border-bottom:none;}
-  .aging-row-name{font-family:var(--font-display);font-weight:600;font-size:13.5px;color:var(--text);}
-  .aging-row-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono);margin-top:2px;}
-  .aging-badge{font-family:var(--font-mono);font-size:11px;padding:4px 11px;border-radius:999px;font-weight:700;white-space:nowrap;flex:none;}
-  .aging-badge.overdue{background:var(--red-bg);color:var(--red);}
-  .aging-badge.upcoming{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);}
 
   @media (max-width:640px){
     .filterbar{flex-direction:column;align-items:stretch;}
@@ -278,10 +312,11 @@
     width:100%;padding:11px;border-radius:999px;border:none;background:var(--line);color:#fff;
     font-weight:600;font-family:var(--font-body);cursor:pointer;font-size:13px;transition:.15s;
   }
-  .access-submit:hover{background:#2158b8;}
+  .access-submit:hover{background:#154b87;}
   .access-submit:disabled{opacity:.6;cursor:default;}
   .access-error{color:var(--red);font-size:12px;margin-top:12px;min-height:14px;}
 </style>
+
 </head>
 <body class="pre-access">
 
@@ -306,14 +341,6 @@
     <button class="refresh-btn" id="assignAccessBtn" title="Assign each Doer's email so they only see their own tasks">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6z"/><polyline points="22 6 12 13 2 6"/></svg>
       Assign Access
-    </button>
-    <button class="refresh-btn" id="emailAlertsBtn" title="Set who receives the automatic daily pending-summary email">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6z"/><polyline points="22 6 12 13 2 6"/></svg>
-      Email Alerts
-    </button>
-    <button class="refresh-btn" id="agingBtn" title="Oldest-pending tasks first, across every tab">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Aging Tracker
     </button>
     <button class="refresh-btn" id="trackerBtn" title="Doer-wise pending &amp; overdue summary + bulk WhatsApp reminders">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L7 14"/></svg>
@@ -372,7 +399,7 @@
    CONFIG — paste your deployed Apps Script Web App URL below
    ============================================================ */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycby1nMbQDCn8-XtLMSNj5OJiud1N1Ilbh-O5Zy4LQJ9TyfPS77KSbGfm-Cbj0skjHWiu/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbwwo2EzeDuJ7mCzwatIsbKH8NLqeIQJNS10rplAWM65bsK_r8gi0kSGujlDWykLiHUV/exec",
   AUTO_REFRESH_MS: 60000, // auto-refresh every 60s, set to 0 to disable
 };
 
@@ -548,7 +575,7 @@ function buildReminderMessage(row, headers){
   if (textLines.length) msg += textLines.join("\n") + `\n\n`;
 
   if (taskLink && isLinkValue(taskLink)) {
-    msg += `📎 *Task Link:* ${stripQuotes(taskLink)}\n\n`;
+    msg += `📎 *Task Link:* ${taskLink}\n\n`;
   }
 
   msg += `Please complete at the earliest.\n– Diametric Builds`;
@@ -757,20 +784,6 @@ const CHECK_ICON = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" 
 const LINK_ICON = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
 const LINK_HEADER_HINT = /link|proof|invoice|grn|pdf|quotation|\bpo\b|task|view|action|workorder|report|summary/i;
-// Custom display labels for specific link-pill headers — add a line below
-// to rename how a column's link button appears on cards/modal, without
-// renaming the actual column in the sheet.
-const LINK_LABEL_OVERRIDES = {
-  "action": "Quotation Link",
-};
-function getLinkLabel(h){
-  const key = h.trim().toLowerCase();
-  // Match "Action" as a whole word so headers like "Action", "Action Link",
-  // "Action Item" etc. all get the same custom label below — not just an
-  // exact "Action" header.
-  if (/\baction\b/.test(key)) return "Quotation Link";
-  return LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
-}
 const HIDE_HEADERS = new Set(["_row", "_sheet", "Status"]);
 const PRIORITY_HEADERS = ["Doer","Site Code","Location","Planned","Deley","Vendor","Vendor Name","Clint Name","Amt","Grand Total","Advance","Balance","MR","Work Order","Step Code","Step Id","Type"];
 const AVATAR_COLORS = ["#2D6CDF","#12A594","#C0398C","#0E8FA6","#D6493F","#7A5AF8","#0B7A99","#B5750C"];
@@ -795,14 +808,8 @@ let STATE = {
 function $(sel, root=document){ return root.querySelector(sel); }
 function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
 
-// Strips surrounding quote characters (straight or curly) and whitespace,
-// so a sheet value like `"https://..."` (typed/pasted with quotes) is
-// still recognized and opened as a clean link.
-function stripQuotes(v){
-  return typeof v === "string" ? v.trim().replace(/^[""'']+|[""'']+$/g, "").trim() : v;
-}
 function isLinkValue(v){
-  return typeof v === "string" && /^https?:\/\//i.test(stripQuotes(v));
+  return typeof v === "string" && /^https?:\/\//i.test(v.trim());
 }
 // Looks up a field by exact header name first, then falls back to a
 // trim+case-insensitive match — protects against hidden whitespace in a
@@ -821,28 +828,6 @@ function overdueRow(row){
   if (!s || s.startsWith("-")) return false; // minus = time still remaining
   if (/^0+(:0+)*$/.test(s)) return false;     // exact zero = not overdue yet
   return true;                                 // positive = deadline has passed
-}
-// Parses a "Deley" value (e.g. "1148:35:30" or "-85:17:30", meaning
-// H:MM:SS) into signed decimal hours. Positive = overdue by that much,
-// negative = time still remaining. Falls back to treating it as a plain
-// number if it isn't in H:MM:SS form.
-function parseDelayHours(v){
-  if (v === undefined || v === null || v === "") return null;
-  if (typeof v === "number") return v;
-  const s = String(v).trim();
-  const m = s.match(/^(-?)(\d+):(\d{1,2}):(\d{1,2})$/);
-  if (m) {
-    const sign = m[1] === "-" ? -1 : 1;
-    return sign * (Number(m[2]) + Number(m[3]) / 60 + Number(m[4]) / 3600);
-  }
-  const num = Number(s);
-  return isNaN(num) ? null : num;
-}
-// Age in days: positive = overdue by that many days, negative = still
-// due in that many days. Returns null if the row has no usable Deley value.
-function computeAgeDays(row){
-  const hrs = parseDelayHours(getField(row, "Deley"));
-  return hrs === null ? null : hrs / 24;
 }
 function rowStatus(row){
   const s = (getField(row, "Status") || "").toString().trim().toLowerCase();
@@ -1151,7 +1136,7 @@ function renderCard(row, headers, sheetName, colKey){
     !CARD_ALREADY_SHOWN.has(h) && !HIDE_HEADERS.has(h) &&
     !LINK_HEADER_HINT.test(h) && !isLinkValue(row[h]) &&
     row[h] !== undefined && row[h] !== ""
-  ).slice(0, 3);
+  ).slice(0, 4);
   if (extraHeaders.length) {
     const grid = document.createElement("div");
     grid.className = "field-grid";
@@ -1168,13 +1153,12 @@ function renderCard(row, headers, sheetName, colKey){
   linkRow.className = "link-row";
   headers.forEach(h => {
     if (h === "Status") return;
-    const rawUrl = row[h];
-    if (!rawUrl || !isLinkValue(rawUrl)) return;
-    const url = stripQuotes(rawUrl);
+    const url = row[h];
+    if (!url || !isLinkValue(url)) return;
     const a = document.createElement("a");
     a.href = url; a.target = "_blank"; a.rel = "noopener";
     a.className = "link-pill";
-    const label = getLinkLabel(h);
+    const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
     a.innerHTML = `${escapeHtml(label)} ↗`;
     linkRow.appendChild(a);
   });
@@ -1285,8 +1269,8 @@ function openModal(row, headers, sheetName){
           <h4>Links</h4>
           <div class="modal-links">
             ${linkFields.map(h => {
-              const label = getLinkLabel(h);
-              return `<a class="link-pill" href="${escapeHtml(stripQuotes(row[h]))}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`;
+              const label = LINK_HEADER_HINT.test(h) ? (h.replace(/link/i,"").trim() || "Open") : h;
+              return `<a class="link-pill" href="${escapeHtml(row[h])}" target="_blank" rel="noopener">${escapeHtml(label)} ↗</a>`;
             }).join("")}
           </div>
         </div>` : ""}
@@ -1536,145 +1520,6 @@ function openTrackerModal(){
   });
 }
 
-/* ------------------------------------------------------------
-   AGING TRACKER — every pending task across EVERY tab, sorted so
-   the task that's been overdue the longest is at the top. Helps a
-   process coordinator see what's been stuck longest, regardless
-   of which sheet or which Doer it belongs to.
-   ------------------------------------------------------------ */
-function buildAgingTrackerData(){
-  const entries = [];
-  STATE.sheets.forEach(s => {
-    s.rows.forEach(row => {
-      if (rowStatus(row) === "done") return;
-      const ageDays = computeAgeDays(row);
-      if (ageDays === null) return;
-      entries.push({ row, sheet: s.sheet, headers: s.headers, ageDays });
-    });
-  });
-  entries.sort((a, b) => b.ageDays - a.ageDays); // most overdue first
-  return entries;
-}
-
-function openAgingTrackerModal(){
-  const entries = buildAgingTrackerData();
-  const root = $("#modalRoot");
-
-  const overlay = document.createElement("div");
-  overlay.className = "modal-overlay";
-  overlay.id = "agingOverlay";
-  const panel = document.createElement("div");
-  panel.className = "modal-panel";
-  panel.style.maxWidth = "600px";
-  panel.innerHTML = `
-    <div class="modal-head">
-      <div>
-        <h2>Aging Tracker</h2>
-        <div class="modal-sub">All tabs · oldest overdue task first</div>
-      </div>
-      <button class="modal-close" id="agingCloseBtn">✕</button>
-    </div>
-    <div class="modal-section"><div id="agingRows"></div></div>`;
-  overlay.appendChild(panel);
-  root.innerHTML = "";
-  root.appendChild(overlay);
-
-  const rowsWrap = $("#agingRows", panel);
-  if (!entries.length) {
-    rowsWrap.innerHTML = `<p class="settings-hint">No pending tasks found across any tab.</p>`;
-  } else {
-    entries.forEach(entry => {
-      const { row, sheet, headers, ageDays } = entry;
-      const doer = getField(row, "Doer") || "Unassigned";
-      const task = getField(row, "Step") || "Task";
-      const isOverdue = ageDays > 0;
-      const badgeText = isOverdue
-        ? `${ageDays.toFixed(1)}d overdue`
-        : `due in ${Math.abs(ageDays).toFixed(1)}d`;
-
-      const rowEl = document.createElement("div");
-      rowEl.className = "aging-row";
-      rowEl.innerHTML = `
-        <div style="min-width:0;">
-          <div class="aging-row-name">${escapeHtml(task)}</div>
-          <div class="aging-row-sub">${escapeHtml(doer)} · ${escapeHtml(sheet)}</div>
-        </div>
-        <span class="aging-badge ${isOverdue ? "overdue" : "upcoming"}">${badgeText}</span>`;
-      rowEl.style.cursor = "pointer";
-      rowEl.addEventListener("click", () => { closeModal(); openModal(row, headers, sheet); });
-      rowsWrap.appendChild(rowEl);
-    });
-  }
-
-  overlay.addEventListener("click", (e) => { if (e.target.id === "agingOverlay") closeModal(); });
-  $("#agingCloseBtn", panel).addEventListener("click", closeModal);
-  document.addEventListener("keydown", escCloseModal);
-}
-
-function openEmailAlertsModal(){
-  const root = $("#modalRoot");
-
-  const overlay = document.createElement("div");
-  overlay.className = "modal-overlay";
-  overlay.id = "emailAlertsOverlay";
-  const panel = document.createElement("div");
-  panel.className = "modal-panel";
-  panel.style.maxWidth = "480px";
-  panel.innerHTML = `
-    <div class="modal-head">
-      <div>
-        <h2>Email Alerts</h2>
-        <div class="modal-sub">Who receives the automatic daily pending/overdue summary email (sent every morning).</div>
-      </div>
-      <button class="modal-close" id="emailAlertsCloseBtn">✕</button>
-    </div>
-    <div class="modal-section">
-      <label class="settings-hint" style="display:block;margin-bottom:6px;">Recipient emails (one per line)</label>
-      <textarea id="digestEmailsInput" rows="5" placeholder="Loading current list..." style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-family:var(--font-mono);font-size:12.5px;resize:vertical;"></textarea>
-    </div>
-    <div class="access-error" id="emailAlertsError"></div>
-    <div class="modal-actions">
-      <button class="btn action" id="emailAlertsSaveBtn">${CHECK_ICON}<span>Save Recipients</span></button>
-    </div>`;
-  overlay.appendChild(panel);
-  root.innerHTML = "";
-  root.appendChild(overlay);
-
-  overlay.addEventListener("click", (e) => { if (e.target.id === "emailAlertsOverlay") closeModal(); });
-  $("#emailAlertsCloseBtn", panel).addEventListener("click", closeModal);
-  document.addEventListener("keydown", escCloseModal);
-
-  const textarea = $("#digestEmailsInput", panel);
-  fetch(`${CONFIG.API_URL}?action=getDigestRecipients`)
-    .then(res => res.json())
-    .then(data => { textarea.value = (data.emails || []).join("\n"); textarea.placeholder = "name@example.com"; })
-    .catch(() => { textarea.placeholder = "name@example.com"; });
-
-  $("#emailAlertsSaveBtn", panel).addEventListener("click", async () => {
-    const errEl = $("#emailAlertsError", panel);
-    errEl.textContent = "";
-    const emails = textarea.value.split("\n").map(e => e.trim()).filter(Boolean);
-
-    const btn = $("#emailAlertsSaveBtn", panel);
-    btn.disabled = true;
-    btn.innerHTML = `<span>Saving...</span>`;
-    try {
-      const res = await fetch(CONFIG.API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "setDigestRecipients", emails }),
-      });
-      const data = await res.json();
-      if (data.error) { errEl.textContent = data.error; }
-      else { closeModal(); }
-    } catch (err) {
-      errEl.textContent = "Save failed: " + err.message;
-    }
-    btn.disabled = false;
-    btn.innerHTML = `${CHECK_ICON}<span>Save Recipients</span>`;
-  });
-}
-
 function openNewTabModal(){
   const root = $("#modalRoot");
 
@@ -1763,8 +1608,6 @@ function escapeHtml(str){
 $("#settingsBtn").addEventListener("click", openSettingsModal);
 $("#doerNumbersBtn").addEventListener("click", openDoerDirectoryModal);
 $("#trackerBtn").addEventListener("click", openTrackerModal);
-$("#agingBtn").addEventListener("click", openAgingTrackerModal);
-$("#emailAlertsBtn").addEventListener("click", openEmailAlertsModal);
 $("#newTabBtn").addEventListener("click", openNewTabModal);
 $("#assignAccessBtn").addEventListener("click", openEmailDirectoryModal);
 $("#refreshBtn").addEventListener("click", () => loadData(false));
@@ -1849,15 +1692,11 @@ function applyAccessRestrictions(access){
   const assignBtn = $("#assignAccessBtn");
   const newTabBtn = $("#newTabBtn");
   const trackerBtn = $("#trackerBtn");
-  const agingBtn = $("#agingBtn");
-  const emailAlertsBtn = $("#emailAlertsBtn");
   if (settingsBtn) settingsBtn.style.display = isAdmin ? "" : "none";
   if (doerBtn) doerBtn.style.display = isAdmin ? "" : "none";
   if (assignBtn) assignBtn.style.display = isAdmin ? "" : "none";
   if (newTabBtn) newTabBtn.style.display = isAdmin ? "" : "none";
   if (trackerBtn) trackerBtn.style.display = isAdmin ? "" : "none";
-  if (agingBtn) agingBtn.style.display = isAdmin ? "" : "none";
-  if (emailAlertsBtn) emailAlertsBtn.style.display = isAdmin ? "" : "none";
 
   if (!isAdmin) {
     const assigneeField = $("#fAssignee").closest(".f-field");
